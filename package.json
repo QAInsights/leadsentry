@@ -1,0 +1,32 @@
+{
+  "name": "leadsentry",
+  "version": "0.1.0",
+  "description": "Childhood lead-exposure risk triage agent for the Mireye Build Challenge",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "tsx src/index.ts",
+    "demo": "tsx src/index.ts --demo"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.33",
+    "@ai-sdk/deepseek": "^3.0.24",
+    "@ai-sdk/google": "^4.0.36",
+    "@ai-sdk/mcp": "^2.0.27",
+    "@ai-sdk/openai": "^4.0.33",
+    "@ai-sdk/openai-compatible": "^3.0.25",
+    "ai": "^7.0.55",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.9",
+    "typescript": "^7.0.2"
+  }
+}

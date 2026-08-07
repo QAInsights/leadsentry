@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+data/cache/
+actions/
+report.md
+report-*.md
+zip-*-report.md
+*.log
+.env
