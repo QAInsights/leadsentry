@@ -16,6 +16,8 @@ export interface ScorerInput {
   nearestRcraTsdM: number | null;
   rcraTsdCount8km: number | null;
   openLustCount1km: number | null;
+  /** Nearest UST facility (active tanks, not releases — see openLustCount1km for those). */
+  nearestUstM: number | null;
   withinWaterServiceArea: boolean | null;
   domesticWellDensityClass: string | null;
 }
@@ -65,8 +67,13 @@ export function scoreAddress(input: ScorerInput): ScoreResult {
   }
 
   // --- Legacy contamination (0-30) ---------------------------------------
+  // Distance is the primary signal; site counts act as a boost (capped per
+  // source) so that "one site 1.5km away" and "five sites 1.5km away" are not
+  // scored identically. UST distance is included as an active-tank proximity
+  // signal (releases are scored separately via openLustCount1km).
   const contamination: ScoreComponent[] = [];
-  const push = (
+
+  const pushComponent = (
     name: string,
     value: number | null,
     pts: number,
@@ -78,43 +85,73 @@ export function scoreAddress(input: ScorerInput): ScoreResult {
       missing.push(name);
       return;
     }
-    contamination.push({ name, points: pts, maxPoints: max, reason, source });
+    contamination.push({ name, points: Math.min(pts, max), maxPoints: max, reason, source });
   };
 
-  const sfPts = distancePoints(input.nearestSuperfundM, [[500, 10], [2000, 7], [8000, 4]]);
-  push(
+  const countBoost = (count: number | null, thresholds: [number, number][]): number => {
+    if (count === null) return 0;
+    return thresholds.reduce((b, [at, pts]) => (count >= at ? b + pts : b), 0);
+  };
+
+  // Superfund: distance 0-10 + count boost (capped at 10).
+  const sfDist = distancePoints(input.nearestSuperfundM, [[500, 10], [2000, 7], [8000, 4]]);
+  const sfBoost = countBoost(input.superfundCount8km, [[2, 1], [5, 1]]);
+  pushComponent(
     'nearest_superfund_distance_m',
     input.nearestSuperfundM,
-    sfPts,
+    sfDist + sfBoost,
     input.nearestSuperfundM === null
       ? ''
-      : `nearest Superfund (EPA SEMS) site ${Math.round(input.nearestSuperfundM)} m away`,
+      : `nearest Superfund (EPA SEMS) site ${Math.round(input.nearestSuperfundM)} m away` +
+        (input.superfundCount8km ? `; ${input.superfundCount8km} site(s) within 8 km` : ''),
     'EPA SEMS via Mireye',
     10,
   );
+  if (input.superfundCount8km === null) missing.push('superfund_sites_within_radius_count');
 
-  const bfPts = distancePoints(input.nearestBrownfieldM, [[500, 8], [2000, 5], [8000, 3]]);
-  push(
+  // Brownfield: distance 0-8 + count boost (capped at 8).
+  const bfDist = distancePoints(input.nearestBrownfieldM, [[500, 8], [2000, 5], [8000, 3]]);
+  const bfBoost = countBoost(input.brownfieldCount8km, [[3, 1], [8, 1]]);
+  pushComponent(
     'nearest_brownfield_distance_m',
     input.nearestBrownfieldM,
-    bfPts,
+    bfDist + bfBoost,
     input.nearestBrownfieldM === null
       ? ''
-      : `nearest brownfield (EPA ACRES) ${Math.round(input.nearestBrownfieldM)} m away`,
+      : `nearest brownfield (EPA ACRES) ${Math.round(input.nearestBrownfieldM)} m away` +
+        (input.brownfieldCount8km ? `; ${input.brownfieldCount8km} site(s) within 8 km` : ''),
     'EPA ACRES via Mireye',
     8,
   );
+  if (input.brownfieldCount8km === null) missing.push('brownfields_within_radius_count');
 
-  const rcraPts = distancePoints(input.nearestRcraTsdM, [[500, 6], [2000, 4], [8000, 2]]);
-  push(
+  // RCRA TSD: distance 0-6 + count boost (capped at 6).
+  const rcraDist = distancePoints(input.nearestRcraTsdM, [[500, 6], [2000, 4], [8000, 2]]);
+  const rcraBoost = countBoost(input.rcraTsdCount8km, [[2, 1]]);
+  pushComponent(
     'nearest_rcra_tsd_distance_m',
     input.nearestRcraTsdM,
-    rcraPts,
+    rcraDist + rcraBoost,
     input.nearestRcraTsdM === null
       ? ''
-      : `nearest RCRA TSD facility ${Math.round(input.nearestRcraTsdM)} m away`,
+      : `nearest RCRA TSD facility ${Math.round(input.nearestRcraTsdM)} m away` +
+        (input.rcraTsdCount8km ? `; ${input.rcraTsdCount8km} facility(ies) within 8 km` : ''),
     'EPA RCRA TSD via Mireye',
     6,
+  );
+  if (input.rcraTsdCount8km === null) missing.push('rcra_tsd_facilities_within_radius_count');
+
+  // UST (active tanks): distance 0-4.
+  const ustDist = distancePoints(input.nearestUstM, [[500, 4], [2000, 2], [8000, 1]]);
+  pushComponent(
+    'nearest_ust_facility_distance_m',
+    input.nearestUstM,
+    ustDist,
+    input.nearestUstM === null
+      ? ''
+      : `nearest active underground-storage-tank facility ${Math.round(input.nearestUstM)} m away`,
+    'EPA UST Finder via Mireye',
+    4,
   );
 
   if (input.openLustCount1km === null) {

@@ -1,14 +1,39 @@
 import { writeFile } from 'node:fs/promises';
+import type { Assessment } from '../store.js';
 import type { TractAssessment } from './zipTriage.js';
 
 const BAND_MARK = { low: 'LOW', moderate: 'MODERATE', priority: 'PRIORITY' } as const;
+
+export interface DeepDiveSampleSummary {
+  tractGeoid: string;
+  tractName: string;
+  /** canvass / mailer / monitor */
+  tier: string;
+  rationale: string;
+  requested: number;
+  got: number;
+  provenance: string;
+  skippedReason: string | null;
+}
+
+export interface DeepDiveResult {
+  reportPath: string;
+  actionsDir: string;
+  samples: DeepDiveSampleSummary[];
+  ranked: Assessment[];
+}
 
 export async function writeZipReport(
   zip: string,
   tracts: TractAssessment[],
   plan: string | null,
   outputPath: string,
-  meta: { mode: string; model: string | null },
+  meta: {
+    mode: string;
+    model: string | null;
+    deepResult?: DeepDiveResult | null;
+    validationSection?: string | null;
+  },
 ): Promise<void> {
   const demo = tracts.some((t) => t.census?.illustrative);
 
@@ -55,6 +80,8 @@ ${citations.join('\n')}
     })
     .join('\n---\n\n');
 
+  const deepSection = meta.deepResult ? renderDeepDiveSection(zip, meta.deepResult) : '';
+
   const report = `# LeadSentry ZIP Screening — ${zip}
 
 Generated ${new Date().toISOString()} · engine: ${meta.mode} · model: ${meta.model ?? 'n/a'}
@@ -72,7 +99,64 @@ ${summaryRows}
 
 ---
 
-${plan ? `## Canvassing plan (agent)\n\n${plan}\n\n---\n\n` : ''}${details}
+${plan ? `## Canvassing plan (agent)\n\n${plan}\n\n---\n\n` : ''}${deepSection}${meta.validationSection ? `${meta.validationSection}\n---\n\n` : ''}${details}
 `;
   await writeFile(outputPath, report);
+}
+
+function renderDeepDiveSection(zip: string, deep: DeepDiveResult): string {
+  const summaryRows = deep.samples
+    .map(
+      (s) =>
+        `| ${s.tractGeoid} | ${s.tractName} | ${s.tier} | ${s.requested} | ${s.got} | ${
+          s.skippedReason ? `Skipped: ${s.skippedReason}` : s.provenance
+        } |`,
+    )
+    .join('\n');
+
+  const addressRows = deep.ranked
+    .map(
+      (a) =>
+        `| ${a.score?.band ?? 'n/a'} | ${a.score?.score ?? 'n/a'} | ${a.address} | ${a.action} | ${a.confidence} |`,
+    )
+    .join('\n');
+
+  const bandCounts = deep.ranked.reduce(
+    (acc, a) => {
+      const band = a.score?.band ?? 'unknown';
+      acc[band] = (acc[band] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+  const bandSummary = Object.entries(bandCounts)
+    .map(([band, c]) => `${c} ${band}`)
+    .join(', ');
+
+  return `## Stage 2 — deep-dive (per-address triage)
+
+LeadSentry sampled addresses inside the highest-priority tract(s) and ran the
+per-address agent against them, closing the stage-1 → stage-2 loop in one
+command.
+
+### Sample sources
+
+| Tract | Name | Tier | Requested | Got | Source / skip reason |
+|---|---|---|---|---|---|
+${summaryRows}
+
+### Address results
+
+${deep.ranked.length} sampled address(es) triaged: ${bandSummary || 'none'}.
+
+| Band | Score | Address | Action | Confidence |
+|---|---|---|---|---|
+${addressRows}
+
+Full per-address report: **\`${deep.reportPath}\`**
+Action artifacts (letters, CSV, GeoJSON): **\`${deep.actionsDir}/\`**
+
+---
+
+`;
 }

@@ -219,6 +219,12 @@ export async function runAgent(addresses: string[], deps: AgentDeps): Promise<Ag
     }),
   };
 
+  // Step budget: each address needs ~4 tool calls (fetch, census, score,
+  // record) plus reasoning steps; allow generous headroom for retries, the
+  // optional request_year_built_field call, and a final summary. The agent
+  // is completion-driven (it must record_assessment for every address), so
+  // this is a safety cap, not the expected path length.
+  const maxSteps = Math.max(addresses.length * 10 + 16, 40);
   const result = await generateText({
     model,
     system: SYSTEM,
@@ -226,7 +232,7 @@ export async function runAgent(addresses: string[], deps: AgentDeps): Promise<Ag
       .map((a, i) => `${i + 1}. ${a}`)
       .join('\n')}`,
     tools,
-    stopWhen: isStepCount(addresses.length * 6 + 8),
+    stopWhen: isStepCount(maxSteps),
   });
 
   return { text: result.text, usage: result.usage };

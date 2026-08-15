@@ -77,7 +77,18 @@ export class CensusAcsClient implements CensusClient {
     }
     const header = rows[0];
     const row = rows[1];
-    const num = (name: string) => Number(row[header.indexOf(name)] ?? 0) || 0;
+    const num = (name: string): number => {
+      const idx = header.indexOf(name);
+      if (idx === -1) {
+        throw new Error(
+          `Census ACS response for tract ${tractGeoid} is missing expected column "${name}" — got headers [${header.join(', ')}]. Possible API schema change.`,
+        );
+      }
+      const raw = row[idx];
+      // Census returns empty strings for some special-case tracts; treat those as 0.
+      const parsed = Number(raw ?? 0);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
 
     const total = num('B25034_001E');
     const pre = PRE1980_VARS.reduce((sum, v) => sum + num(v), 0);

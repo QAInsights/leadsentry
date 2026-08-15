@@ -1,9 +1,9 @@
 import { writeFile } from 'node:fs/promises';
-import type { AssessmentStore } from './store.js';
+import type { Assessment, AssessmentStore } from './store.js';
 
 const BAND_MARK = { low: 'LOW', moderate: 'MODERATE', priority: 'PRIORITY' } as const;
 
-function citationsBlock(a: ReturnType<AssessmentStore['ranked']>[number]): string {
+function citationsBlock(a: Assessment): string {
   const lines: string[] = [];
   if (a.census) {
     lines.push(
@@ -67,6 +67,8 @@ ${citationsBlock(a)}
     })
     .join('\n---\n\n');
 
+  const baselineSection = renderBaselineSection(ranked);
+
   const report = `# LeadSentry Triage Report
 
 Generated ${new Date().toISOString()} · engine: ${meta.mode} · model: ${meta.model ?? 'n/a'}
@@ -79,7 +81,48 @@ ${summaryRows}
 
 ---
 
-${details}
+${baselineSection}${details}
 `;
   await writeFile(outputPath, report);
+}
+
+function renderBaselineSection(ranked: Assessment[]): string {
+  const withBaseline = ranked.filter((a) => a.baseline);
+  if (withBaseline.length === 0) return '';
+
+  const rows = withBaseline
+    .map((a) => {
+      const b = a.baseline!;
+      const verdict = b.action === a.action ? 'agrees' : 'overrode';
+      const quote =
+        verdict === 'overrode'
+          ? `<br>Agent reasoned: "${a.agentReasoning.replace(/"/g, "'")}"`
+          : '';
+      return `| ${a.address} | ${b.action} | ${a.action} | ${b.confidence} | ${a.confidence} | ${verdict}${quote} |`;
+    })
+    .join('\n');
+
+  const overrides = withBaseline.filter((a) => a.baseline!.action !== a.action);
+
+  let summary: string;
+  if (overrides.length === 0) {
+    summary =
+      `All ${withBaseline.length} address(es) agree with the rule baseline. ` +
+      'The agent added per-address data-quality reasoning and decided whether to file a Mireye field request.';
+  } else {
+    summary = `${overrides.length}/${withBaseline.length} address(es) the agent overrode the rule baseline. ` +
+      `The baseline is the same policy used for offline triage; the deviations below are the agent's value-add.`;
+  }
+
+  return `## Agent vs. rule baseline
+
+${summary}
+
+| Address | Baseline action | Agent action | Baseline confidence | Agent confidence | Verdict |
+|---|---|---|---|---|---|
+${rows}
+
+---
+
+`;
 }

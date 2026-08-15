@@ -31,6 +31,7 @@ export function toScorerInput(
     nearestRcraTsdM: num(f.nearest_rcra_tsd_distance_m?.value),
     rcraTsdCount8km: num(f.rcra_tsd_facilities_within_radius_count?.value),
     openLustCount1km: num(f.open_lust_sites_within_1km_count?.value),
+    nearestUstM: num(f.nearest_ust_facility_distance_m?.value),
     withinWaterServiceArea: bool(f.within_water_service_area?.value),
     domesticWellDensityClass: str(f.domestic_well_household_density_class?.value),
   };

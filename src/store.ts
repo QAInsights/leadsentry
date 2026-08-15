@@ -1,6 +1,7 @@
 import type { MireyeFetchResult } from './mireye/types.js';
 import type { TractHousingAge } from './census.js';
 import type { ScoreResult } from './scorer.js';
+import type { BaselineResult } from './baseline.js';
 
 export type Confidence = 'high' | 'medium' | 'low';
 export type ActionType =
@@ -26,6 +27,8 @@ export interface Assessment {
   action: ActionType;
   actionFile: string | null;
   fieldRequestFiled: boolean;
+  /** What the rule-based baseline would have decided — set post-hoc. */
+  baseline?: BaselineResult;
 }
 
 /** In-memory run store; the agent fills this via the record_assessment tool. */

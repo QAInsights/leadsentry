@@ -1,48 +1,35 @@
 # LeadSentry
 
-A childhood lead-exposure risk **triage agent** for the Mireye Build Challenge.
+Childhood lead-exposure risk triage agent for the Mireye Build Challenge.
 
-Lead poisoning in kids is almost entirely preventable, but by the time it's
-caught the damage is done. Health departments have the budget to test — not
-the budget to figure out *which* addresses to knock on first. LeadSentry does
-that triage: it reasons over physical-world data per address, scores risk,
-and drafts the follow-up action (outreach letter, test-kit dispatch), with
-every number cited to its source.
+Lead poisoning in children is almost entirely preventable, but by the time it is caught the damage is done. Health departments have the budget to test, but not the budget to decide which addresses to visit first. LeadSentry does that triage: it reasons over physical-world data per address, scores risk, and drafts the follow-up action (outreach letter or test-kit dispatch), with every number cited to its source.
 
 ## What it combines
 
-Mireye's catalog has no year-built field, so LeadSentry pairs Mireye with
-**US Census ACS Table B25034 (Year Structure Built)** at the tract level,
-joined through Mireye's `tract_geoid` field. Pre-1980 housing share is the
-backbone of CDC/HUD's own lead-risk models.
+Mireye's catalog does not include a year-built field, so LeadSentry pairs Mireye with US Census ACS Table B25034 (Year Structure Built) at the tract level, joined through Mireye's `tract_geoid` field. Pre-1980 housing share is the backbone of CDC/HUD lead-risk models.
 
 | Score component | Weight | Source |
 |---|---|---|
-| Pre-1980 housing share | 0–50 | Census ACS B25034 (via free Census API key) |
-| Legacy contamination (Superfund / brownfield / RCRA TSD / open LUST) | 0–30 | Mireye (EPA SEMS / ACRES / RCRA / UST Finder) |
-| Water service gap (outside CWS area, high domestic-well density) | 0–20 | Mireye (EPA CWS Service Areas V3.0) |
+| Pre-1980 housing share | 0-50 | Census ACS B25034 (via free Census API key) |
+| Legacy contamination (Superfund / brownfield / RCRA TSD / open LUST) | 0-30 | Mireye (EPA SEMS / ACRES / RCRA / UST Finder) |
+| Water service gap (outside CWS area, high domestic-well density) | 0-20 | Mireye (EPA CWS Service Areas V3.0) |
 
-Bands: 0–30 low, 31–60 moderate, 61–100 priority.
+Bands: 0-30 low, 31-60 moderate, 61-100 priority.
 
-## It's an agent, not a script
+## Agent design
 
-A vendor-agnostic LLM (any provider — set `LLM_MODEL=provider:model`) drives
-the loop: fetch Mireye facts → join Census tract data → compute the
-deterministic score → **reason about data quality** (`parcel_grade=false`
-caps confidence; heavy nulls downgrade it) → **decide and record an action**,
-which writes a real artifact to `actions/`. On a tract where the score leans
-almost entirely on the tract-level signal, the agent may file a live
-`/v1/field-requests` asking Mireye to build a parcel-level year-built field.
+A vendor-agnostic LLM (any provider; set `LLM_MODEL=provider:model`) drives the loop: fetch Mireye facts, join Census tract data, compute the deterministic score, reason about data quality (`parcelGrade=false` caps confidence; heavy nulls downgrade it), then decide and record an action. The action writes a real artifact to `actions/`.
 
-No LLM key? It falls back to a clearly-labeled rule-based offline triage so
-the pipeline still produces a complete report.
+Every report also shows an **Agent vs. rule baseline** table. The same rule-based policy used by the offline fallback is applied to the same data, so you can see exactly where and why the agent upgraded or downgraded an action.
+
+If no LLM key is available, the pipeline falls back to clearly-labeled, rule-based offline triage and still produces a complete report.
 
 ## Running it
 
 ```bash
 npm install
-cp .env.example .env    # MIREYE_API_TOKEN (code BUILD = free build tier),
-                        # CENSUS_API_KEY (free, instant), LLM_MODEL=openai:gpt-4o
+cp .env.example .env
+# Add MIREYE_API_TOKEN, CENSUS_API_KEY, and LLM_MODEL
 npm start -- --input data/sample-addresses.json --output report.md
 ```
 
@@ -52,45 +39,76 @@ Tokenless demo against clearly-labeled illustrative fixtures:
 npm run demo
 ```
 
-## ZIP-code mode (two-stage funnel)
+## ZIP code mode
 
-Per-address triage across a whole ZIP is wasteful — the heavy signals are
-tract-level anyway. ZIP mode screens an entire ZIP cheaply first:
+Per-address triage across a whole ZIP is wasteful. ZIP mode screens an entire ZIP cheaply first:
 
 ```bash
-npm start -- --zip 14213        # writes zip-14213-report.md
+npm start -- --zip 14213
 ```
 
-Stage 1 maps the ZIP to its census tracts (free Census ZCTA↔tract
-relationship file + Gazetteer internal points, downloaded once and cached),
-scores each tract with one Mireye point sample + one Census call, then the
-agent turns the ranking into a **canvassing plan**: which tracts get
-door-to-door saturation, which get mailers, which get monitored — and where
-the expensive per-address stage-2 budget should go. Stage 2 is the existing
-per-address pipeline (`--input`), run only on the tracts the plan flags.
+Stage 1 maps the ZIP to its census tracts (free Census ZCTA-tract relationship file and Gazetteer internal points, downloaded once and cached), scores each tract with one Mireye point sample and one Census call, then the agent turns the ranking into a canvassing plan: which tracts get door-to-door saturation, which get mailers, which get monitored, and where the expensive per-address stage-2 budget should go.
 
-First run downloads the 23 MB national relationship file (cached in
-`data/cache/` afterwards; repeat runs are instant).
+### Deep dive: `--deep N`
+
+Add `--deep N` to run stage 2 automatically:
+
+```bash
+npm start -- --zip 14213 --deep 5
+```
+
+LeadSentry selects the highest-priority canvass tract(s), samples N real addresses inside them (Census TIGERweb tract polygon plus OpenStreetMap addresses, both free and no keys), and runs the per-address agent. One command produces both the ZIP canvassing plan and the ranked per-address report with outreach letters and dispatch CSV.
+
+If the ZIP screens mostly low-risk, `--deep` skips stage 2 and records that decision in the report so you can reallocate the budget elsewhere.
+
+### Redaction: `--redact`
+
+For public-facing reports, add `--redact` to replace street numbers and coordinates with placeholders:
+
+```bash
+npm start -- --zip 14213 --deep 5 --redact
+```
+
+## Ground-truth validation
+
+LeadSentry correlates its ZIP-mode scores with real childhood blood-lead outcomes from the NYSDOH Childhood Blood Lead Testing dataset.
+
+Validate a single ZIP:
+
+```bash
+npm start -- --zip 14213 --validate
+```
+
+Run a multi-ZIP validation study:
+
+```bash
+npm run validate:erie
+```
+
+The validation report shows the Pearson and Spearman correlation between LeadSentry risk scores and the NYSDOH observed elevated-BLL rate per 1,000 tested.
 
 ## Model portability
 
-`LLM_MODEL` accepts any provider the Vercel AI SDK speaks:
+`LLM_MODEL` uses `provider:model` syntax and works with any provider the Vercel AI SDK supports:
 
 - `openai:gpt-4o` (needs `OPENAI_API_KEY`)
 - `anthropic:claude-sonnet-4-5` (needs `ANTHROPIC_API_KEY`)
 - `google:gemini-2.5-flash` (needs `GOOGLE_GENERATIVE_AI_API_KEY`)
-- `deepseek:deepseek-chat` or `deepseek:deepseek-reasoner` (needs `DEEPSEEK_API_KEY`) — cheapest hosted option
-- `meta:muse-spark-1.2` (needs `MODEL_API_KEY` from llama.developer.meta.com — Meta Model API, 1M context)
-- `openai-compatible:llama3.1` with `LLM_BASE_URL=http://localhost:11434/v1` (Ollama etc.)
+- `deepseek:deepseek-chat` or `deepseek:deepseek-reasoner` (needs `DEEPSEEK_API_KEY`)
+- `meta:muse-spark-1.2` (needs `MODEL_API_KEY`)
+- `openai-compatible:llama3.1` with `LLM_BASE_URL` (Ollama, vLLM, LM Studio, etc.)
 
-Mireye is reached through its **hosted MCP server** (`api.mireye.com/mcp`)
-with a bearer token; if MCP auth is refused, LeadSentry falls back to the
-deterministic REST `/v1/fetch` automatically — same tools, same agent loop.
+Mireye is reached through its hosted MCP server (`api.mireye.com/mcp`) with a bearer token. If MCP auth is refused, LeadSentry falls back to the deterministic REST `/v1/fetch` automatically; same tools, same agent loop.
 
-## Limitations / next steps
+## Tests
 
-- ACS is tract-level, not parcel-level — a v2 would weight by block group.
-- The contamination sub-score is a distance-threshold rule; a v2 would fit it
-  against blood-lead surveillance data per tract.
-- Water-service fields flag *regulatory* gaps (private wells), not confirmed
-  lead service lines — EPA's Lead Service Line Inventory would sharpen this.
+```bash
+npm run typecheck
+npm test
+```
+
+## Limitations and next steps
+
+- ACS is tract-level, not parcel-level. A v2 would weight by block group.
+- The contamination sub-score is a distance-threshold rule. A v2 would fit it against blood-lead surveillance data per tract.
+- Water-service fields flag regulatory gaps (private wells), not confirmed lead service lines. EPA's Lead Service Line Inventory would sharpen this.

@@ -1,6 +1,7 @@
 import type { CensusClient, TractHousingAge } from '../census.js';
 import type { MireyeClient, MireyeFetchResult } from '../mireye/types.js';
 import type { TractFileResolver, TractPoint, ZipTract } from '../zip/tractFiles.js';
+import type { AddressSampler, SampledAddress } from '../zip/addressSampler.js';
 
 /**
  * Clearly-labeled illustrative fixtures so the full pipeline runs without
@@ -250,7 +251,7 @@ export class DemoMireyeClient implements MireyeClient {
     };
   }
 
-  async requestField(question: string): Promise<unknown> {
+  async requestField(question: string, _lat: number, _lng: number): Promise<unknown> {
     return {
       status: 'demo_simulated',
       question,
@@ -294,3 +295,46 @@ export class DemoCensusClient implements CensusClient {
 export const DEMO_ADDRESSES = Object.keys(PROFILES).map(
   (a) => a.replace(/\b\w/g, (c) => c.toUpperCase()),
 );
+
+// Demo address sampler: returns a few of the existing fixture addresses for the
+// top demo tract, so ZIP + --deep mode runs end-to-end tokenless.
+export class DemoAddressSampler implements AddressSampler {
+  async sampleAddresses(
+    tractGeoid: string,
+    n: number,
+    context?: { zip?: string; offset?: number },
+  ): Promise<{ addresses: SampledAddress[]; provenance: string; skippedReason: string | null }> {
+    const topTracts = ['36029006500', '36029006601', '36029017100'];
+    if (!topTracts.includes(tractGeoid)) {
+      return {
+        addresses: [],
+        provenance: 'ILLUSTRATIVE_FIXTURE',
+        skippedReason: `No demo address fixture for tract ${tractGeoid} (only 14213 tracts)`,
+      };
+    }
+    const all: SampledAddress[] = DEMO_ADDRESSES.map((a) => {
+      const profile = PROFILES[normalize(a)];
+      return {
+        address: a,
+        lat: profile.lat,
+        lng: profile.lng,
+        source: 'ILLUSTRATIVE_FIXTURE',
+      };
+    });
+    // Deterministic spread sample, same logic as OsmAddressSampler.
+    const sorted = [...all].sort((x, y) => x.lat - y.lat);
+    const step = Math.max(1, Math.floor(sorted.length / n));
+    const offset = context?.offset ?? 0;
+    const sampled: SampledAddress[] = [];
+    for (let i = offset; i < sorted.length && sampled.length < n; i += step) {
+      sampled.push(sorted[i]);
+    }
+    if (sampled.length < n) {
+      for (let i = sorted.length - 1; i >= 0 && sampled.length < n; i--) {
+        const a = sorted[i];
+        if (!sampled.includes(a)) sampled.push(a);
+      }
+    }
+    return { addresses: sampled, provenance: 'ILLUSTRATIVE_FIXTURE', skippedReason: null };
+  }
+}

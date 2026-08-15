@@ -4,7 +4,7 @@ import type { TractAssessment } from './zipTriage.js';
 
 export type TractActionTier = 'canvass' | 'mailer' | 'monitor';
 
-interface TractAction {
+export interface TractAction {
   tract: TractAssessment;
   tier: TractActionTier;
   budgetSharePct: number;
@@ -13,7 +13,7 @@ interface TractAction {
 
 const SIGNIFICANT_SHARE = 0.1; // >=10% of ZIP land
 
-function assignTier(t: TractAssessment): { tier: TractActionTier; rationale: string } {
+export function assignTier(t: TractAssessment): { tier: TractActionTier; rationale: string } {
   const share = t.zipTract.zipLandShare;
   const waterGap = t.score.components.find((c) => c.name === 'water_service_gap')?.points ?? 0;
   const housingOnly =
@@ -46,11 +46,7 @@ function assignTier(t: TractAssessment): { tier: TractActionTier; rationale: str
  *   operator-checklist.md — concrete next steps, including what to do when
  *                           the screen comes back mostly low-risk
  */
-export async function writeZipActions(
-  zip: string,
-  tracts: TractAssessment[],
-  actionsDir = join('actions', `zip-${zip}`),
-): Promise<string> {
+export function assignTiersAndBudget(tracts: TractAssessment[]): TractAction[] {
   const actions: TractAction[] = tracts.map((tract) => {
     const { tier, rationale } = assignTier(tract);
     return { tract, tier, budgetSharePct: 0, rationale };
@@ -62,6 +58,15 @@ export async function writeZipActions(
   actions.forEach((a, i) => {
     a.budgetSharePct = totalWeight > 0 ? Math.round((weights[i] / totalWeight) * 100) : 0;
   });
+  return actions;
+}
+
+export async function writeZipActions(
+  zip: string,
+  tracts: TractAssessment[],
+  actionsDir = join('actions', `zip-${zip}`),
+): Promise<string> {
+  const actions = assignTiersAndBudget(tracts);
 
   await mkdir(actionsDir, { recursive: true });
 

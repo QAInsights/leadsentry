@@ -5,13 +5,18 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
+  "_engines_note": "Locked to Node 22+ because all @ai-sdk/* and ai packages require >=22 in package-lock.json.",
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "start": "tsx src/index.ts",
-    "demo": "tsx src/index.ts --demo"
+    "demo": "tsx src/index.ts --demo",
+    "validate:erie": "tsx src/index.ts --validate-zip-list data/erie-zips.json",
+    "validate:demo": "tsx src/index.ts --validate-zip-list data/erie-zips-demo.json --demo"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.33",
@@ -27,6 +32,7 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "tsx": "^4.23.9",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^2.1.9"
   }
 }

@@ -28,18 +28,25 @@ export async function triageZip(
     tractFiles: TractFileResolver;
     /** Skip slivers: tracts covering less than this share of the ZIP's land. */
     minZipLandShare?: number;
+    /** Max concurrent tract assessments (Mireye + Census in parallel per tract). */
+    concurrency?: number;
   },
 ): Promise<TractAssessment[]> {
   const { mireye, census, tractFiles } = deps;
   const minShare = deps.minZipLandShare ?? 0.01;
+  const concurrency = deps.concurrency ?? 6;
 
   const zipTracts = (await tractFiles.tractsForZip(zip)).filter(
     (t) => t.zipLandShare >= minShare,
   );
-  console.log(`[zip] ${zip} overlaps ${zipTracts.length} tract(s) (>= ${minShare * 100}% land share)`);
+  console.log(
+    `[zip] ${zip} overlaps ${zipTracts.length} tract(s) (>= ${minShare * 100}% land share), concurrency=${concurrency}`,
+  );
 
-  const results: TractAssessment[] = [];
-  for (const zipTract of zipTracts) {
+  // Process tracts concurrently with a cap. Each tract's Census + Mireye calls
+  // already run in parallel via Promise.all; this caps how many tracts run at
+  // once so we don't fire 50 simultaneous Mireye requests.
+  const assessOne = async (zipTract: ZipTract): Promise<TractAssessment> => {
     const point = await tractFiles.tractPoint(zipTract.tractGeoid);
     console.log(
       `[zip] tract ${zipTract.tractGeoid} (${(zipTract.zipLandShare * 100).toFixed(0)}% of ZIP) @ ${point.lat},${point.lng}`,
@@ -60,7 +67,18 @@ export async function triageZip(
         { source: v.source, fetched_at: v.fetched_at },
       ]),
     );
-    results.push({ zipTract, point, census: censusResult, score, provenance });
-  }
+    return { zipTract, point, census: censusResult, score, provenance };
+  };
+
+  const results: TractAssessment[] = [];
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(concurrency, zipTracts.length) }, async () => {
+    while (cursor < zipTracts.length) {
+      const idx = cursor++;
+      results.push(await assessOne(zipTracts[idx]));
+    }
+  });
+  await Promise.all(workers);
+
   return results.sort((a, b) => b.score.score - a.score.score);
 }
