@@ -63,7 +63,7 @@
   </section>
   <main class="sheet">
     <h1>LeadSentry Triage Report</h1>
-<p>Generated 2026-08-15T18:24:19.023Z · engine: agent · model: deepseek:deepseek-chat</p>
+<p>Generated 2026-08-15T21:00:21.839Z · engine: agent · model: deepseek:deepseek-chat</p>
 <blockquote>
 <p><strong>DEMO RUN</strong> — data values are clearly-labeled illustrative fixtures, not real Mireye/Census responses. Set MIREYE_API_TOKEN and CENSUS_API_KEY for live data.</p>
 </blockquote>
@@ -82,37 +82,37 @@
 <tr>
 <td>PRIORITY</td>
 <td>79</td>
-<td>2214 Genesee St, Buffalo, NY 14211</td>
+<td>Address 2</td>
 <td>priority_outreach</td>
 <td>high</td>
 </tr>
 <tr>
 <td>PRIORITY</td>
 <td>72</td>
-<td>436 Massachusetts Ave, Buffalo, NY 14213</td>
+<td>Address 4</td>
 <td>priority_outreach</td>
 <td>high</td>
 </tr>
 <tr>
 <td>PRIORITY</td>
 <td>61</td>
-<td>789 Grant St, Buffalo, NY 14213</td>
+<td>Address 5</td>
 <td>testkit_dispatch</td>
-<td>medium</td>
+<td>high</td>
 </tr>
 <tr>
 <td>MODERATE</td>
 <td>56</td>
-<td>12 Example Hollow Rd, Rural, NY 14001</td>
+<td>Address 1</td>
 <td>testkit_dispatch</td>
 <td>medium</td>
 </tr>
 <tr>
 <td>LOW</td>
 <td>9</td>
-<td>35 Maple View Ln, Amherst, NY 14221</td>
+<td>Address 3</td>
 <td>none</td>
-<td>high</td>
+<td>medium</td>
 </tr>
 </tbody>
 </table>
@@ -132,54 +132,54 @@
 </thead>
 <tbody>
 <tr>
-<td>2214 Genesee St, Buffalo, NY 14211</td>
+<td>Address 2</td>
 <td>testkit_dispatch</td>
 <td>priority_outreach</td>
 <td>high</td>
 <td>high</td>
-<td>overrode<br>Agent reasoned: "Highest-risk address with full, rooftop-grade data (score 79, priority). Pre-1980 housing share is 97% (49/50) and legacy contamination is maxed at 30/30 from strong parcel-level parcels: Superfund 380m, brownfield 260m, RCRA-TSD 480m, active UST 95m, and 4 open LUSTs within 1km. All inputs present, no nulls. Inside water service (no gap). The combination of very high pre-war housing with dense multiple-legacy-contamination sources justifies priority_outreach (door-knock + letter) — this is the strongest candidate in the batch."</td>
+<td>overrode<br>Agent reasoned: "Score 79 (priority band, highest). Rooftop parcel match, no missing inputs — high confidence. Tract 97% pre-1980 (49/50). Severe contamination concentration: Superfund 380m, brownfield 260m, RCRA TSD 480m, UST facility 95m, 4 open LUSTs within 1km — contamination maxed at 30/30. Water service present. This is the highest-risk address with extreme source density plus pre-war housing. Door-knock + letter (priority_outreach) is warranted as these co-occurring high-contamination and pre-war signals sit at the top of the priority band."</td>
 </tr>
 <tr>
-<td>436 Massachusetts Ave, Buffalo, NY 14213</td>
+<td>Address 4</td>
 <td>testkit_dispatch</td>
 <td>priority_outreach</td>
 <td>high</td>
 <td>high</td>
-<td>overrode<br>Agent reasoned: "Rooftop-grade parcel match with complete inputs. Score 72 (priority). Tract pre-1980 housing share is 94% (47/50), and legacy contamination is substantial (25/30) with a brownfield 420m away, active UST 180m away, and 3 open LUSTs within 1km, all corroborated at parcel level. Inside water service so no water-service gap. The strong parcel-level corroboration plus pre-war housing justifies priority_outreach (door-knock + letter) for this high-risk address."</td>
+<td>overrode<br>Agent reasoned: "Score 72 (priority band). Rooftop parcel match (parcel_grade=true), no missing inputs — high confidence in parcel-level data. Tract 94% pre-1980 (47/50). Contamination elevated: brownfield 420m, UST facility 180m, 3 open LUSTs within 1km, near a Superfund within 8km. Water service present (no lead-in-water gap). Combination of high pre-war housing and multiple active contamination sources within close range argues for priority_outreach door-knock + letter rather than self-serve kit."</td>
 </tr>
 <tr>
-<td>789 Grant St, Buffalo, NY 14213</td>
+<td>Address 5</td>
 <td>testkit_dispatch</td>
 <td>testkit_dispatch</td>
 <td>high</td>
+<td>high</td>
+<td>agrees</td>
+</tr>
+<tr>
+<td>Address 1</td>
+<td>testkit_dispatch</td>
+<td>testkit_dispatch</td>
+<td>medium</td>
 <td>medium</td>
 <td>agrees</td>
 </tr>
 <tr>
-<td>12 Example Hollow Rd, Rural, NY 14001</td>
-<td>testkit_dispatch</td>
-<td>testkit_dispatch</td>
-<td>medium</td>
-<td>medium</td>
-<td>agrees</td>
-</tr>
-<tr>
-<td>35 Maple View Ln, Amherst, NY 14221</td>
+<td>Address 3</td>
 <td>none</td>
 <td>none</td>
 <td>high</td>
-<td>high</td>
+<td>medium</td>
 <td>agrees</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2>1. 2214 Genesee St, Buffalo, NY 14211 — 79/100 [PRIORITY]</h2>
+<h2>1. Address 2 — 79/100 [PRIORITY]</h2>
 <ul>
-<li><strong>Resolved to:</strong> 2214 Genesee St, Buffalo, NY 14211 (42.9093, -78.8182)</li>
+<li><strong>Resolved to:</strong> Address 2 (?, ?)</li>
 <li><strong>Census tract:</strong> 36029003300</li>
 <li><strong>Confidence:</strong> high</li>
-<li><strong>Action:</strong> priority_outreach -&gt; <code>actions\2214-genesee-st-buffalo-ny-14211.md</code></li>
+<li><strong>Action:</strong> priority_outreach -&gt; <code>actions\address-2.md</code></li>
 </ul>
 <table>
 <thead>
@@ -209,18 +209,18 @@
 </table>
 <p><strong>Agent reasoning:</strong></p>
 <blockquote>
-<p>Highest-risk address with full, rooftop-grade data (score 79, priority). Pre-1980 housing share is 97% (49/50) and legacy contamination is maxed at 30/30 from strong parcel-level parcels: Superfund 380m, brownfield 260m, RCRA-TSD 480m, active UST 95m, and 4 open LUSTs within 1km. All inputs present, no nulls. Inside water service (no gap). The combination of very high pre-war housing with dense multiple-legacy-contamination sources justifies priority_outreach (door-knock + letter) — this is the strongest candidate in the batch.</p>
+<p>Score 79 (priority band, highest). Rooftop parcel match, no missing inputs — high confidence. Tract 97% pre-1980 (49/50). Severe contamination concentration: Superfund 380m, brownfield 260m, RCRA TSD 480m, UST facility 95m, 4 open LUSTs within 1km — contamination maxed at 30/30. Water service present. This is the highest-risk address with extreme source density plus pre-war housing. Door-knock + letter (priority_outreach) is warranted as these co-occurring high-contamination and pre-war signals sit at the top of the priority band.</p>
 </blockquote>
 <p><strong>Citations:</strong>
-- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 2241/2310 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T18:23:53.293Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
-- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T18:23:50.821Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
+- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 2241/2310 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T20:59:49.958Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
+- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T20:59:47.582Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
 <hr />
-<h2>2. 436 Massachusetts Ave, Buffalo, NY 14213 — 72/100 [PRIORITY]</h2>
+<h2>2. Address 4 — 72/100 [PRIORITY]</h2>
 <ul>
-<li><strong>Resolved to:</strong> 436 Massachusetts Ave, Buffalo, NY 14213 (42.9279, -78.8795)</li>
+<li><strong>Resolved to:</strong> Address 4 (?, ?)</li>
 <li><strong>Census tract:</strong> 36029006500</li>
 <li><strong>Confidence:</strong> high</li>
-<li><strong>Action:</strong> priority_outreach -&gt; <code>actions\436-massachusetts-ave-buffalo-ny-14213.md</code></li>
+<li><strong>Action:</strong> priority_outreach -&gt; <code>actions\address-4.md</code> — field request filed with Mireye</li>
 </ul>
 <table>
 <thead>
@@ -250,17 +250,17 @@
 </table>
 <p><strong>Agent reasoning:</strong></p>
 <blockquote>
-<p>Rooftop-grade parcel match with complete inputs. Score 72 (priority). Tract pre-1980 housing share is 94% (47/50), and legacy contamination is substantial (25/30) with a brownfield 420m away, active UST 180m away, and 3 open LUSTs within 1km, all corroborated at parcel level. Inside water service so no water-service gap. The strong parcel-level corroboration plus pre-war housing justifies priority_outreach (door-knock + letter) for this high-risk address.</p>
+<p>Score 72 (priority band). Rooftop parcel match (parcel_grade=true), no missing inputs — high confidence in parcel-level data. Tract 94% pre-1980 (47/50). Contamination elevated: brownfield 420m, UST facility 180m, 3 open LUSTs within 1km, near a Superfund within 8km. Water service present (no lead-in-water gap). Combination of high pre-war housing and multiple active contamination sources within close range argues for priority_outreach door-knock + letter rather than self-serve kit.</p>
 </blockquote>
 <p><strong>Citations:</strong>
-- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 2012/2140 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T18:23:53.292Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
-- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T18:23:50.820Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
+- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 2012/2140 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T20:59:49.958Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
+- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T20:59:47.581Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
 <hr />
-<h2>3. 789 Grant St, Buffalo, NY 14213 — 61/100 [PRIORITY]</h2>
+<h2>3. Address 5 — 61/100 [PRIORITY]</h2>
 <ul>
-<li><strong>Resolved to:</strong> 789 Grant St, Buffalo, NY 14213 (42.9186, -78.8887)</li>
+<li><strong>Resolved to:</strong> Address 5 (?, ?)</li>
 <li><strong>Census tract:</strong> 36029006601</li>
-<li><strong>Confidence:</strong> medium</li>
+<li><strong>Confidence:</strong> high</li>
 <li><strong>Action:</strong> testkit_dispatch -&gt; <code>actions\dispatch-list.md</code></li>
 </ul>
 <table>
@@ -291,15 +291,15 @@
 </table>
 <p><strong>Agent reasoning:</strong></p>
 <blockquote>
-<p>Rooftop-grade parcel match, score 61 (priority, lower edge). Pre-1980 housing share is 89% (45/50), but the legacy-contamination subscore is only 16/30, so the score leans more heavily on the tract-level housing signal with only moderate parcel-level corroboration (brownfield 950m, 1 LUST within 1km). Inside water service so no gap. Confidence is medium because parcel contamination is not strong. Given the priority band and moderate corroboration, a self-serve test-kit dispatch is appropriate: family can test without door-knock.</p>
+<p>Score 61 (priority band, low edge). Rooftop parcel match, no missing inputs — high confidence. Tract 89% pre-1980 (45/50). Contamination moderate: brownfield 950m, UST facility 610m, 1 open LUST within 1km, no close Superfund proximity. Water service present (no gap). The pre-war housing is the main driver; contamination is more moderate than top-tier cases. Given moderate contamination, provided water service, and self-serve capability, I dispatch a test kit rather than door-knock outreach.</p>
 </blockquote>
 <p><strong>Citations:</strong>
-- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 1683/1890 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T18:23:53.292Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
-- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T18:23:50.821Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
+- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 1683/1890 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T20:59:49.958Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
+- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T20:59:47.582Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
 <hr />
-<h2>4. 12 Example Hollow Rd, Rural, NY 14001 — 56/100 [MODERATE]</h2>
+<h2>4. Address 1 — 56/100 [MODERATE]</h2>
 <ul>
-<li><strong>Resolved to:</strong> 12 Example Hollow Rd, Rural, NY 14001 (42.7661, -78.6108) — WARNING: street-centerline estimate, not a rooftop match</li>
+<li><strong>Resolved to:</strong> Address 1 (?, ?) — WARNING: street-centerline estimate, not a rooftop match</li>
 <li><strong>Census tract:</strong> 36029014902</li>
 <li><strong>Confidence:</strong> medium (missing inputs: nearest_superfund_distance_m, nearest_brownfield_distance_m, nearest_rcra_tsd_distance_m)</li>
 <li><strong>Action:</strong> testkit_dispatch -&gt; <code>actions\dispatch-list.md</code></li>
@@ -332,17 +332,17 @@
 </table>
 <p><strong>Agent reasoning:</strong></p>
 <blockquote>
-<p>Moderate band (score 56). Strong red flag: this address is outside any EPA community water system service area with HIGH domestic-well household density, earning the full water-service-gap 20 points — meaning private-well water with no federal lead-in-water oversight, a direct exposure vector. However, data quality is degraded: parcel_grade=false (street-centerline, not rooftop), so parcel distances describe a neighboring property at best, and 3 contamination fields (superfund/brownfield/RCRA-TSD) returned null (missing inputs &gt;30%). Confidence is capped at medium. The water-service red flag argues for testkit_dispatch despite the moderate band.</p>
+<p>Score 56 (moderate band). parcel_grade=false means street-centerline estimate, so parcel-specific distances are not rooftop-reliable — cap confidence at medium. ~30% of contamination inputs null (Superfund/brownfield/RCRA), further supporting medium confidence. Critical red flag: OUTSIDE any community water service area with high (41.2/km2) domestic-well density — no federal lead-in-water oversight, a strong well-water exposure risk. This red flag in the moderate band justifies a test kit dispatch despite the lower overall score.</p>
 </blockquote>
 <p><strong>Citations:</strong>
-- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 1021/1450 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T18:23:53.292Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
-- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T18:23:50.821Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
+- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 1021/1450 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T20:59:49.958Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
+- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T20:59:47.582Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
 <hr />
-<h2>5. 35 Maple View Ln, Amherst, NY 14221 — 9/100 [LOW]</h2>
+<h2>5. Address 3 — 9/100 [LOW]</h2>
 <ul>
-<li><strong>Resolved to:</strong> 35 Maple View Ln, Amherst, NY 14221 (43.0209, -78.7566)</li>
+<li><strong>Resolved to:</strong> Address 3 (?, ?)</li>
 <li><strong>Census tract:</strong> 36029009411</li>
-<li><strong>Confidence:</strong> high (missing inputs: nearest_superfund_distance_m, nearest_rcra_tsd_distance_m)</li>
+<li><strong>Confidence:</strong> medium (missing inputs: nearest_superfund_distance_m, nearest_rcra_tsd_distance_m)</li>
 <li><strong>Action:</strong> none</li>
 </ul>
 <table>
@@ -373,11 +373,11 @@
 </table>
 <p><strong>Agent reasoning:</strong></p>
 <blockquote>
-<p>Low band (score 9). Rooftop-grade parcel match. Pre-1980 tract housing share is only 10% (5/50), legacy contamination is minimal (only a distant brownfield 6800m and UST 2300m, 4/30), and the address is inside the community water service area so no water gap. Two contamination fields were null (superfund/RCRA-TSD) but these are expected to be absent in this low-contamination setting and do not change the low-band conclusion. No risk flags warranting action; no testing or outreach.</p>
+<p>Score 9 (low band). Rooftop parcel match, but Superfund and RCRA fields null (2 of ~6 inputs missing, ~1/3), so confidence is medium. Tract only 10% pre-1980 (5/50); nearest brownfield 6800m; within regulated water service area. No contamination, no pre-war housing, no water-service gap. Clear low-risk profile — no testing action needed.</p>
 </blockquote>
 <p><strong>Citations:</strong>
-- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 268/2680 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T18:23:53.293Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
-- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T18:23:50.821Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
+- Pre-1980 housing share: US Census ACS 2023 5-yr, Table B25034 — 268/2680 units — ILLUSTRATIVE_FIXTURE (shape matches ACS 2023 5-year B25034) (fetched 2026-08-15T20:59:49.958Z) <strong>[ILLUSTRATIVE FIXTURE]</strong>
+- ILLUSTRATIVE_FIXTURE (fetched 2026-08-15T20:59:47.582Z): tract_geoid, within_water_service_area, water_system_name, domestic_well_households_per_km2, domestic_well_household_density_class, nearest_superfund_distance_m, superfund_sites_within_radius_count, nearest_brownfield_distance_m, brownfields_within_radius_count, nearest_rcra_tsd_distance_m, rcra_tsd_facilities_within_radius_count, open_lust_sites_within_1km_count, nearest_ust_facility_distance_m</p>
   </main>
 </body>
 </html>
