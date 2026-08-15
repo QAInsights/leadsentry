@@ -5,15 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LeadSentry — Mireye Build Challenge</title>
   <style>
+    @font-face {
+      font-family: "Syncopate";
+      src: url("fonts/Syncopate-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
-      --bg: #f6f5f2;
+      --navy: #0d2445;
+      --navy-900: #081626;
+      --navy-700: #14365f;
+      --navy-muted: #6d829c;
+      --sentry-blue: #4285f4;
+      --sentry-soft: #d4e6fd;
+      --teal: #0d8f8f;
+      --amber: #f5a623;
+      --paper: #f7f8fa;
       --surface: #ffffff;
-      --ink: #1a1a1a;
-      --ink-muted: #4d4d4d;
-      --accent: #b44c12;
-      --accent-soft: #e9c6b0;
-      --rule: #d9d6d0;
-      --radius: 0.25rem;
+      --rule: #dbe1e8;
+      --radius: 0.5rem;
+      --shadow: 0 8px 30px rgba(13, 36, 69, 0.08);
+      --shadow-raised: 0 12px 40px rgba(13, 36, 69, 0.14);
     }
 
     * {
@@ -27,150 +41,242 @@
     }
 
     body {
-      font-family: Georgia, "Times New Roman", serif;
-      background: var(--bg);
-      color: var(--ink);
-      line-height: 1.55;
-      padding: 2rem 1rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--navy);
+      color: var(--navy);
+      line-height: 1.65;
     }
 
-    .page {
-      max-width: 52rem;
-      margin: 0 auto;
-      background: var(--surface);
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-      padding: clamp(1.5rem, 4vw, 3rem);
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: clamp(3rem, 8vw, 5rem) 1.5rem 6rem;
+      background:
+        radial-gradient(circle at 50% 60%, rgba(66, 133, 244, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(13, 143, 143, 0.08) 0%, transparent 35%),
+        var(--navy);
+      color: #fff;
+      overflow: hidden;
     }
 
-    header {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      border-bottom: 2px solid var(--ink);
-      padding-bottom: 1.5rem;
-      margin-bottom: 1.5rem;
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 50% 55%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.04) 2%, transparent 2.5%),
+        radial-gradient(circle at 50% 55%, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.03) 20%, transparent 21%),
+        radial-gradient(circle at 50% 55%, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.03) 38%, transparent 39%),
+        radial-gradient(circle at 50% 55%, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.02) 56%, transparent 57%);
+      pointer-events: none;
     }
 
-    header img {
-      width: clamp(3.5rem, 10vw, 5rem);
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero img {
+      width: clamp(12rem, 34vw, 20rem);
       height: auto;
       display: block;
+      margin: 0 auto 1.5rem;
+      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.25));
     }
 
-    header div {
-      text-align: right;
-    }
-
-    h1 {
-      font-size: clamp(1.75rem, 4vw, 2.5rem);
+    .hero h1 {
+      font-family: "Syncopate", sans-serif;
+      font-size: clamp(2.5rem, 7vw, 4.25rem);
       font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      letter-spacing: 0.08em;
+      line-height: 1.05;
+      white-space: nowrap;
+      color: #fff;
     }
 
-    .tagline {
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-      color: var(--ink-muted);
+    .hero h1 .sentry {
+      color: var(--sentry-blue);
+    }
+
+    .hero .tagline {
+      font-size: clamp(1.15rem, 3vw, 1.6rem);
+      color: var(--sentry-soft);
       font-style: italic;
-      margin-top: 0.25rem;
+      margin-top: 0.75rem;
+      opacity: 0.95;
+    }
+
+    .hero .meta {
+      margin-top: 1.75rem;
+      font-size: 0.85rem;
+      color: var(--navy-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .hero .meta a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid var(--sentry-blue);
+    }
+
+    .hero .meta a:hover {
+      color: var(--sentry-blue);
+      border-bottom-color: transparent;
+    }
+
+    .sheet {
+      max-width: 54rem;
+      margin: -4rem auto 3rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-raised);
+      padding: clamp(1.75rem, 4vw, 3rem);
+      position: relative;
+      z-index: 2;
+    }
+
+    .lead {
+      font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+      color: var(--navy-700);
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .callout {
+      background: linear-gradient(135deg, #eff6ff 0%, #e0efff 100%);
+      border-left: 5px solid var(--sentry-blue);
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: var(--radius);
+      color: var(--navy-700);
+    }
+
+    .callout strong {
+      color: var(--navy);
+      font-weight: 700;
     }
 
     h2 {
-      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      font-family: "Syncopate", sans-serif;
+      font-size: clamp(0.9rem, 2.2vw, 1.05rem);
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin: 1.75rem 0 0.75rem;
-      color: var(--accent);
+      letter-spacing: 0.14em;
+      margin: 2.25rem 0 0.85rem;
+      color: var(--navy);
+      padding-bottom: 0.35rem;
+      border-bottom: 2px solid var(--teal);
+      display: inline-block;
+    }
+
+    h2 + p, h2 + .lead {
+      margin-top: 0.25rem;
     }
 
     p, li {
       font-size: 0.95rem;
-      color: var(--ink-muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .lead {
-      font-size: clamp(1rem, 2.2vw, 1.15rem);
-      color: var(--ink);
-      margin-bottom: 1.25rem;
-    }
-
-    .callout {
-      background: #fff9f5;
-      border-left: 4px solid var(--accent);
-      padding: 1rem 1.25rem;
-      margin: 1.25rem 0;
-      border-radius: var(--radius);
-    }
-
-    .callout strong {
-      color: var(--accent);
+      color: #334155;
+      margin-bottom: 0.85rem;
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 0.9rem;
-      margin: 1rem 0;
+      margin: 1.25rem 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
     }
 
     th, td {
       text-align: left;
-      padding: 0.6rem 0.5rem;
+      padding: 0.85rem 1rem;
       border-bottom: 1px solid var(--rule);
       vertical-align: top;
     }
 
     th {
+      font-family: "Syncopate", sans-serif;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--ink);
-      border-bottom-width: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: var(--navy-700);
+      border-color: var(--navy-700);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+      background: #f8fafc;
     }
 
     td:first-child {
-      font-weight: 600;
-      color: var(--ink);
+      font-weight: 700;
+      color: var(--navy);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 1.25rem;
+      margin: 1.25rem 0;
     }
 
     .card {
+      background: #fff;
       border: 1px solid var(--rule);
+      border-top: 4px solid var(--teal);
       border-radius: var(--radius);
-      padding: 1rem;
+      padding: 1.25rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:nth-child(2) { border-top-color: var(--sentry-blue); }
+    .card:nth-child(3) { border-top-color: var(--amber); }
+    .card:nth-child(4) { border-top-color: var(--navy); }
+    .card:nth-child(5) { border-top-color: var(--teal); }
+    .card:nth-child(6) { border-top-color: var(--sentry-blue); }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-raised);
+      border-color: #c6d0db;
     }
 
     .card h3 {
-      font-size: 0.95rem;
+      font-family: "Syncopate", sans-serif;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--navy);
       margin-bottom: 0.5rem;
     }
 
     .card p {
       margin: 0;
       font-size: 0.9rem;
+      color: #475569;
     }
 
     .steps {
       counter-reset: step;
       list-style: none;
-      margin: 1rem 0;
+      margin: 1.25rem 0;
     }
 
     .steps li {
       position: relative;
-      padding-left: 2.25rem;
-      margin-bottom: 0.75rem;
-      color: var(--ink-muted);
+      padding-left: 2.75rem;
+      margin-bottom: 1rem;
+      color: #475569;
     }
 
     .steps li::before {
@@ -178,90 +284,134 @@
       content: counter(step);
       position: absolute;
       left: 0;
-      top: 0;
-      width: 1.5rem;
-      height: 1.5rem;
-      background: var(--accent);
+      top: 0.05rem;
+      width: 1.8rem;
+      height: 1.8rem;
+      background: var(--teal);
       color: #fff;
+      font-family: "Syncopate", sans-serif;
       font-weight: 700;
-      font-size: 0.8rem;
-      line-height: 1.5rem;
+      font-size: 0.75rem;
+      line-height: 1.8rem;
       text-align: center;
       border-radius: 50%;
     }
 
-    .links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-
-    .links a {
-      display: inline-block;
-      padding: 0.6rem 1rem;
-      border: 1px solid var(--ink);
-      color: var(--ink);
-      text-decoration: none;
+    .terminal {
+      background: var(--navy-900);
       border-radius: var(--radius);
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: background 0.15s ease, color 0.15s ease;
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0 1.25rem;
+      box-shadow: var(--shadow);
     }
 
-    .links a:hover {
-      background: var(--ink);
-      color: var(--surface);
+    .terminal p {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin: 0 0 0.5rem;
+      line-height: 1.5;
     }
 
-    .links a.primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .links a.primary:hover {
-      background: #933d0e;
-      border-color: #933d0e;
-    }
-
-    footer {
-      margin-top: 2rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--rule);
-      font-size: 0.8rem;
-      color: var(--ink-muted);
+    .terminal p:last-child {
+      margin-bottom: 0;
     }
 
     code {
       font-family: "Courier New", Courier, monospace;
       font-size: 0.85em;
-      background: var(--bg);
-      padding: 0.1rem 0.35rem;
-      border-radius: 0.15rem;
+      background: #eef2f6;
+      color: var(--navy);
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.2rem;
     }
 
-    @media (max-width: 480px) {
-      header {
-        grid-template-columns: 1fr;
-        text-align: center;
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 1.5rem;
+    }
+
+    .links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.7rem 1.2rem;
+      border: 1.5px solid var(--navy);
+      color: var(--navy);
+      text-decoration: none;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .links a:hover {
+      background: var(--navy);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .links a.primary {
+      background: var(--sentry-blue);
+      border-color: var(--sentry-blue);
+      color: #fff;
+    }
+
+    .links a.primary:hover {
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 3rem;
+      font-size: 0.85rem;
+      color: var(--navy-muted);
+      background: var(--navy);
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid var(--sentry-blue);
+    }
+
+    footer a:hover {
+      color: var(--sentry-blue);
+      border-bottom-color: transparent;
+    }
+
+    @media (max-width: 520px) {
+      .hero {
+        padding-bottom: 4.5rem;
       }
-      header div {
-        text-align: center;
+      .hero h1 {
+        font-size: clamp(1.75rem, 9vw, 2.5rem);
+      }
+      .sheet {
+        margin: -2.5rem 1rem 2rem;
+      }
+      .links a {
+        width: 100%;
+        justify-content: center;
       }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <header>
-      <img src="assets/logo.png" alt="LeadSentry logo">
-      <div>
-        <h1>LeadSentry</h1>
-        <p class="tagline">Know which door to knock on first.</p>
-      </div>
-    </header>
+  <section class="hero">
+    <img src="assets/logo-icon.png" alt="LeadSentry logo">
+    <h1>Lead<span class="sentry">Sentry</span></h1>
+    <p class="tagline">Know which door to knock on first.</p>
+    <p class="meta">
+      Built by NaveenKumar Namachivayam · <a href="https://qainsights.com" target="_blank" rel="noopener">QAInsights</a>
+    </p>
+  </section>
 
+  <main class="sheet">
     <p class="lead">
       A childhood lead-exposure risk triage agent built for the Mireye Build Challenge.
       LeadSentry combines Mireye's physical-world data with US Census housing-age data to
@@ -350,11 +500,11 @@
     </p>
 
     <h2>Try it</h2>
-    <p>
-      <code>npm install</code><br>
-      <code>cp .env.example .env</code><br>
-      <code>npm start -- --zip 14213 --deep 5</code>
-    </p>
+    <div class="terminal">
+      <p>npm install</p>
+      <p>cp .env.example .env</p>
+      <p>npm start -- --zip 14213 --deep 5</p>
+    </div>
     <p>
       Tokenless demo: <code>npm run demo</code>
     </p>
@@ -365,10 +515,10 @@
       <a href="validation-report.md" target="_blank">Validation report</a>
       <a href="README.md" target="_blank">Full README</a>
     </div>
-
-    <footer>
-      Built for the Mireye Build Challenge. Submitted August 2026.
-    </footer>
   </main>
+
+  <footer>
+    Built by NaveenKumar Namachivayam · <a href="https://qainsights.com" target="_blank" rel="noopener">QAInsights</a> for the Mireye Build Challenge.
+  </footer>
 </body>
 </html>

@@ -118,3 +118,7 @@ npm test
 - ACS is tract-level, not parcel-level. A v2 would weight by block group.
 - The contamination sub-score is a distance-threshold rule. A v2 would fit it against blood-lead surveillance data per tract.
 - Water-service fields flag regulatory gaps (private wells), not confirmed lead service lines. EPA's Lead Service Line Inventory would sharpen this.
+
+## Author
+
+Built by [NaveenKumar Namachivayam](https://qainsights.com) for the Mireye Build Challenge.
