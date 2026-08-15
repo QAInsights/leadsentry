@@ -157,6 +157,39 @@
       font-weight: 700;
     }
 
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 1.25rem 1rem;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .stat .value {
+      font-family: "Syncopate", sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: var(--sentry-blue);
+      line-height: 1.1;
+      margin-bottom: 0.35rem;
+    }
+
+    .stat .label {
+      font-size: 0.8rem;
+      color: var(--navy-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+    }
+
     h2 {
       font-family: "Syncopate", sans-serif;
       font-size: clamp(0.9rem, 2.2vw, 1.05rem);
@@ -317,6 +350,21 @@
       margin-bottom: 0;
     }
 
+    .validation img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--rule);
+    }
+
+    .validation .caption {
+      font-size: 0.85rem;
+      color: var(--navy-muted);
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
     code {
       font-family: "Courier New", Courier, monospace;
       font-size: 0.85em;
@@ -418,10 +466,27 @@
       rank addresses by risk, draft follow-up actions, and show its work with every citation.
     </p>
 
+    <div class="stats">
+      <div class="stat">
+        <div class="value">500K</div>
+        <div class="label">U.S. children above CDC's 3.5 μg/dL reference level</div>
+      </div>
+      <div class="stat">
+        <div class="value">26</div>
+        <div class="label">Erie County ZIPs validated against NYSDOH outcomes</div>
+      </div>
+      <div class="stat">
+        <div class="value">0.55</div>
+        <div class="label">Spearman ρ between score and real EBLL rate</div>
+      </div>
+    </div>
+
     <div class="callout">
-      <strong>Real problem:</strong> Childhood lead poisoning is almost entirely preventable,
-      but by the time it is caught the harm is done. Health departments have the budget to test,
-      but not the budget to decide which doors to knock on first. LeadSentry does that triage in one call.
+      <strong>Real problem:</strong> There is no safe blood lead level in children. CDC estimates roughly
+      <strong>500,000 U.S. children</strong> have a blood lead level at or above the 3.5 μg/dL reference value.
+      Childhood lead poisoning is almost entirely preventable, but by the time it is caught the harm is done.
+      Health departments have the budget to test, but not the budget to decide which doors to knock on first.
+      LeadSentry does that triage in one call.
     </div>
 
     <h2>What it combines</h2>
@@ -497,6 +562,22 @@
       State and local health departments, EPA Lead and Copper Rule Improvements compliance teams,
       and water utilities currently stitch this triage together by hand across siloed GIS layers,
       ACS tables, and county PDFs. LeadSentry collapses it to one call.
+    </p>
+
+    <h2>Ground-truth validation</h2>
+    <p>
+      LeadSentry's land-weighted mean risk score was compared against real childhood
+      blood-lead outcomes from the NYSDOH Childhood Blood Lead Testing dataset across
+      26 Erie County, NY ZIP codes.
+    </p>
+    <div class="validation">
+      <img src="assets/validation-scatter.png" alt="LeadSentry risk score vs. NYSDOH elevated blood-lead rate">
+      <p class="caption">Higher LeadSentry scores align with higher observed elevated-BLL rates per 1,000 children tested.</p>
+    </div>
+    <p>
+      In high-impact ZIPs like <strong>14212</strong> and <strong>14213</strong>, LeadSentry scored 70-72 while NYSDOH
+      observed 87-89 EBLLs per 1,000 children tested. Low-risk ZIPs like <strong>14221</strong> and <strong>14228</strong>
+      scored 35-43 and had zero observed EBLLs.
     </p>
 
     <h2>Try it</h2>

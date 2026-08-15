@@ -8,7 +8,7 @@
 
 Childhood lead-exposure risk triage agent for the Mireye Build Challenge.
 
-Lead poisoning in children is almost entirely preventable, but by the time it is caught the damage is done. Health departments have the budget to test, but not the budget to decide which addresses to visit first. LeadSentry does that triage: it reasons over physical-world data per address, scores risk, and drafts the follow-up action (outreach letter or test-kit dispatch), with every number cited to its source.
+Lead poisoning in children is almost entirely preventable, but by the time it is caught the damage is done. CDC estimates roughly **500,000 U.S. children** have a blood lead level at or above the 3.5 μg/dL reference value. Health departments have the budget to test, but not the budget to decide which addresses to visit first. LeadSentry does that triage: it reasons over physical-world data per address, scores risk, and drafts the follow-up action (outreach letter or test-kit dispatch), with every number cited to its source.
 
 ## What it combines
 
@@ -77,7 +77,20 @@ npm start -- --zip 14213 --deep 5 --redact
 
 ## Ground-truth validation
 
-LeadSentry correlates its ZIP-mode scores with real childhood blood-lead outcomes from the NYSDOH Childhood Blood Lead Testing dataset.
+LeadSentry correlates its ZIP-mode scores with real childhood blood-lead outcomes from the [NYSDOH Childhood Blood Lead Testing and Elevated Incidence by Zip Code](https://health.data.ny.gov/Health/Childhood-Blood-Lead-Testing-and-Elevated-Incidenc/d54z-enu8) dataset.
+
+Across **26 ZIP codes in Erie County, NY**, LeadSentry's land-weighted mean risk score shows a **Spearman ρ of 0.55** and a **Pearson r of 0.44** with the observed elevated-BLL rate per 1,000 children tested.
+
+![LeadSentry risk score vs. NYSDOH elevated blood-lead rate](assets/validation-scatter.png)
+
+High-impact ZIPs align with the model:
+- **14212**: LeadSentry 70 · NYSDOH 89 EBLLs per 1,000 tested
+- **14213**: LeadSentry 66 · NYSDOH 87 EBLLs per 1,000 tested
+- **14204**: LeadSentry 57 · NYSDOH 57 EBLLs per 1,000 tested
+
+Low-risk ZIPs also align:
+- **14221**: LeadSentry 43 · NYSDOH 0 EBLLs per 1,000 tested
+- **14228**: LeadSentry 35 · NYSDOH 0 EBLLs per 1,000 tested
 
 Validate a single ZIP:
 
@@ -85,13 +98,11 @@ Validate a single ZIP:
 npm start -- --zip 14213 --validate
 ```
 
-Run a multi-ZIP validation study:
+Run the multi-ZIP study:
 
 ```bash
 npm run validate:erie
 ```
-
-The validation report shows the Pearson and Spearman correlation between LeadSentry risk scores and the NYSDOH observed elevated-BLL rate per 1,000 tested.
 
 ## Model portability
 
