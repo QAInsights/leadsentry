@@ -6,6 +6,10 @@
 
 <p align="center"><em>Know which door to knock on first.</em></p>
 
+<p align="center">
+  <a href="https://qainsights.github.io/leadsentry/">View the one-pager</a>
+</p>
+
 Childhood lead-exposure risk triage agent for the Mireye Build Challenge.
 
 Lead poisoning in children is almost entirely preventable, but by the time it is caught the damage is done. CDC estimates roughly **500,000 U.S. children** have a blood lead level at or above the 3.5 μg/dL reference value. Health departments have the budget to test, but not the budget to decide which addresses to visit first. LeadSentry does that triage: it reasons over physical-world data per address, scores risk, and drafts the follow-up action (outreach letter or test-kit dispatch), with every number cited to its source.
