@@ -16,3 +16,6 @@ validation-report.md
 *.log
 test-tmp-*/
 .commandcode/
+hackathon-guide.md
+idea.md
+
