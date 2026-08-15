@@ -2,6 +2,7 @@ import type { MireyeClient } from './types.js';
 import { MireyeMcpClient } from './mcp.js';
 import { MireyeRestClient } from './rest.js';
 import { DemoMireyeClient } from '../demo/fixtures.js';
+import { RateLimitedMireyeClient } from './rateLimit.js';
 
 export type { MireyeClient } from './types.js';
 export { LEADSENTRY_FIELDS } from './types.js';
@@ -26,7 +27,7 @@ export async function connectMireye(
   try {
     const client = await MireyeMcpClient.connectStdio(token);
     console.log('[mireye] connected via MCP (stdio adapter, uvx mireye-mcp)');
-    return client;
+    return new RateLimitedMireyeClient(client);
   } catch (err) {
     console.log(
       `[mireye] stdio MCP unavailable (${(err as Error).message.slice(0, 160)}) — trying hosted MCP`,
@@ -35,11 +36,11 @@ export async function connectMireye(
   try {
     const client = await MireyeMcpClient.connect(token);
     console.log('[mireye] connected via hosted MCP server');
-    return client;
+    return new RateLimitedMireyeClient(client);
   } catch (err) {
     console.log(
       `[mireye] hosted MCP unavailable (${(err as Error).message.slice(0, 160)}) — using REST /v1/fetch`,
     );
-    return new MireyeRestClient(token);
+    return new RateLimitedMireyeClient(new MireyeRestClient(token));
   }
 }

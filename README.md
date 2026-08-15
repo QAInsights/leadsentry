@@ -1,8 +1,10 @@
 # LeadSentry
 
 <p align="center">
-  <img src="assets/logo.jpg" alt="LeadSentry logo" width="320">
+  <img src="assets/logo.png" alt="LeadSentry logo" width="320">
 </p>
+
+<p align="center"><em>Know which door to knock on first.</em></p>
 
 Childhood lead-exposure risk triage agent for the Mireye Build Challenge.
 
