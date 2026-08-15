@@ -1,5 +1,9 @@
 # LeadSentry
 
+<p align="center">
+  <img src="assets/logo.jpg" alt="LeadSentry logo" width="320">
+</p>
+
 Childhood lead-exposure risk triage agent for the Mireye Build Challenge.
 
 Lead poisoning in children is almost entirely preventable, but by the time it is caught the damage is done. Health departments have the budget to test, but not the budget to decide which addresses to visit first. LeadSentry does that triage: it reasons over physical-world data per address, scores risk, and drafts the follow-up action (outreach letter or test-kit dispatch), with every number cited to its source.
