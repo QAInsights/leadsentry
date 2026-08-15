@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadSentry — Mireye Build Challenge</title>
+  <style>
+    :root {
+      --bg: #f6f5f2;
+      --surface: #ffffff;
+      --ink: #1a1a1a;
+      --ink-muted: #4d4d4d;
+      --accent: #b44c12;
+      --accent-soft: #e9c6b0;
+      --rule: #d9d6d0;
+      --radius: 0.25rem;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      padding: 2rem 1rem;
+    }
+
+    .page {
+      max-width: 52rem;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    header {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    header img {
+      width: clamp(3.5rem, 10vw, 5rem);
+      height: auto;
+      display: block;
+    }
+
+    header div {
+      text-align: right;
+    }
+
+    h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .tagline {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--ink-muted);
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+
+    h2 {
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 1.75rem 0 0.75rem;
+      color: var(--accent);
+    }
+
+    p, li {
+      font-size: 0.95rem;
+      color: var(--ink-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .lead {
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+    }
+
+    .callout {
+      background: #fff9f5;
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      border-radius: var(--radius);
+    }
+
+    .callout strong {
+      color: var(--accent);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+    }
+
+    th {
+      font-weight: 700;
+      color: var(--ink);
+      border-bottom-width: 2px;
+    }
+
+    td:first-child {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .card {
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .steps li {
+      position: relative;
+      padding-left: 2.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--ink-muted);
+    }
+
+    .steps li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      line-height: 1.5rem;
+      text-align: center;
+      border-radius: 50%;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .links a {
+      display: inline-block;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--ink);
+      color: var(--ink);
+      text-decoration: none;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .links a:hover {
+      background: var(--ink);
+      color: var(--surface);
+    }
+
+    .links a.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .links a.primary:hover {
+      background: #933d0e;
+      border-color: #933d0e;
+    }
+
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+    }
+
+    code {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.85em;
+      background: var(--bg);
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.15rem;
+    }
+
+    @media (max-width: 480px) {
+      header {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      header div {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <img src="assets/logo.png" alt="LeadSentry logo">
+      <div>
+        <h1>LeadSentry</h1>
+        <p class="tagline">Know which door to knock on first.</p>
+      </div>
+    </header>
+
+    <p class="lead">
+      A childhood lead-exposure risk triage agent built for the Mireye Build Challenge.
+      LeadSentry combines Mireye's physical-world data with US Census housing-age data to
+      rank addresses by risk, draft follow-up actions, and show its work with every citation.
+    </p>
+
+    <div class="callout">
+      <strong>Real problem:</strong> Childhood lead poisoning is almost entirely preventable,
+      but by the time it is caught the harm is done. Health departments have the budget to test,
+      but not the budget to decide which doors to knock on first. LeadSentry does that triage in one call.
+    </div>
+
+    <h2>What it combines</h2>
+    <p>
+      Mireye's catalog covers hazards, utilities, and parcel boundaries, but does not include
+      housing age. LeadSentry joins Mireye's <code>tract_geoid</code> with US Census ACS Table B25034
+      (Year Structure Built) to compute pre-1980 housing share, the backbone of CDC/HUD lead-risk models.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Score component</th><th>Weight</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pre-1980 housing share</td>
+          <td>0-50</td>
+          <td>Census ACS B25034 (joined on Mireye <code>tract_geoid</code>)</td>
+        </tr>
+        <tr>
+          <td>Legacy contamination</td>
+          <td>0-30</td>
+          <td>Mireye EPA SEMS, ACRES, RCRA, UST Finder</td>
+        </tr>
+        <tr>
+          <td>Water service gap</td>
+          <td>0-20</td>
+          <td>Mireye EPA CWS Service Areas V3.0</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Bands: 0-30 low, 31-60 moderate, 61-100 priority.</p>
+
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>Accept an address, a list of addresses, or a full ZIP code.</li>
+      <li>Fetch Mireye facts and join Census tract housing-age data.</li>
+      <li>Compute a deterministic, fully cited 0-100 risk score.</li>
+      <li>Let an LLM reason over data quality and decide the action.</li>
+      <li>Write the action to an outreach letter or dispatch CSV.</li>
+    </ol>
+
+    <h2>Key capabilities</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>ZIP-level screening</h3>
+        <p>Score all tracts in a ZIP cheaply first, then decide where to spend the expensive per-address budget.</p>
+      </div>
+      <div class="card">
+        <h3>Agent + rule baseline</h3>
+        <p>Every report shows what the rule baseline would do and exactly where the agent upgraded or downgraded it.</p>
+      </div>
+      <div class="card">
+        <h3>Ground-truth validation</h3>
+        <p>Correlate ZIP-mode scores against real NYSDOH childhood blood-lead testing outcomes.</p>
+      </div>
+      <div class="card">
+        <h3>Offline fallback</h3>
+        <p>No API key? The pipeline falls back to clearly labeled, deterministic rule triage and still produces a complete report.</p>
+      </div>
+      <div class="card">
+        <h3>Privacy redaction</h3>
+        <p>Public-facing reports can replace street numbers and coordinates with placeholders while preserving the score.</p>
+      </div>
+      <div class="card">
+        <h3>Model portability</h3>
+        <p>Works with any provider the Vercel AI SDK supports via <code>LLM_MODEL=provider:model</code>.</p>
+      </div>
+    </div>
+
+    <h2>Who pays</h2>
+    <p>
+      State and local health departments, EPA Lead and Copper Rule Improvements compliance teams,
+      and water utilities currently stitch this triage together by hand across siloed GIS layers,
+      ACS tables, and county PDFs. LeadSentry collapses it to one call.
+    </p>
+
+    <h2>Try it</h2>
+    <p>
+      <code>npm install</code><br>
+      <code>cp .env.example .env</code><br>
+      <code>npm start -- --zip 14213 --deep 5</code>
+    </p>
+    <p>
+      Tokenless demo: <code>npm run demo</code>
+    </p>
+
+    <div class="links">
+      <a class="primary" href="https://github.com/QAInsights/leadsentry" target="_blank" rel="noopener">View repo</a>
+      <a href="report.md" target="_blank">Sample report</a>
+      <a href="validation-report.md" target="_blank">Validation report</a>
+      <a href="README.md" target="_blank">Full README</a>
+    </div>
+
+    <footer>
+      Built for the Mireye Build Challenge. Submitted August 2026.
+    </footer>
+  </main>
+</body>
+</html>
