@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadSentry Ground-Truth Validation</title>
+  <style>
+    @font-face {
+      font-family: "Syncopate";
+      src: url("fonts/Syncopate-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      --navy: #0d2445;
+      --navy-900: #081626;
+      --navy-700: #14365f;
+      --navy-muted: #6d829c;
+      --sentry-blue: #4285f4;
+      --sentry-soft: #d4e6fd;
+      --teal: #0d8f8f;
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --rule: #dbe1e8;
+      --radius: 0.5rem;
+      --shadow: 0 8px 30px rgba(13, 36, 69, 0.08);
+      --shadow-raised: 0 12px 40px rgba(13, 36, 69, 0.14);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--navy); color: var(--navy); line-height: 1.65; }
+    .hero { text-align: center; padding: clamp(2.5rem, 6vw, 4rem) 1.5rem 5rem; background: var(--navy); color: #fff; }
+    .hero h1 { font-family: "Syncopate", sans-serif; font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: 0.08em; }
+    .hero a { color: #fff; text-decoration: none; font-size: 0.85rem; opacity: 0.8; }
+    .hero a:hover { opacity: 1; text-decoration: underline; }
+    .sheet { max-width: 54rem; margin: -3rem auto 3rem; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-raised); padding: clamp(1.5rem, 4vw, 2.5rem); position: relative; z-index: 2; }
+    .sheet h1, .sheet h2, .sheet h3 { font-family: "Syncopate", sans-serif; color: var(--navy); margin: 1.5rem 0 0.75rem; }
+    .sheet h1 { font-size: 1.5rem; }
+    .sheet h2 { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 0.25rem; border-bottom: 2px solid var(--sentry-blue); display: inline-block; }
+    .sheet h3 { font-size: 0.95rem; color: var(--sentry-blue); }
+    .sheet p, .sheet li { font-size: 0.95rem; color: #334155; margin-bottom: 0.85rem; }
+    .sheet a { color: var(--sentry-blue); }
+    .sheet blockquote { background: #eff6ff; border-left: 4px solid var(--sentry-blue); padding: 1rem 1.25rem; margin: 1rem 0; border-radius: var(--radius); font-style: italic; }
+    .sheet table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0; box-shadow: var(--shadow); border-radius: var(--radius); overflow: hidden; }
+    .sheet th { background: var(--navy-700); color: #fff; text-align: left; padding: 0.65rem 0.75rem; font-family: "Syncopate", sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .sheet td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+    .sheet tr:nth-child(even) { background: #f8fafc; }
+    .sheet code { font-family: "Courier New", Courier, monospace; background: #eef2f6; padding: 0.1rem 0.35rem; border-radius: 0.2rem; font-size: 0.9em; }
+    .sheet pre { background: var(--navy-900); color: #e2e8f0; padding: 1rem; border-radius: var(--radius); overflow-x: auto; }
+    .sheet pre code { background: transparent; }
+    .sheet hr { border: none; border-top: 2px solid var(--rule); margin: 1.5rem 0; }
+    .sheet ul { margin-left: 1.25rem; margin-bottom: 1rem; }
+    @media (max-width: 520px) { .sheet { margin: -2.5rem 1rem 2rem; } }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <a href="https://qainsights.github.io/leadsentry/">&larr; Back to one-pager</a>
+    <h1>LeadSentry Ground-Truth Validation</h1>
+  </section>
+  <main class="sheet">
+    <h1>LeadSentry Ground-Truth Validation</h1>
+<p>LeadSentry's ZIP-mode risk scores are compared against real childhood blood-lead
+outcomes from the NYSDOH Childhood Blood Lead Testing dataset. For each ZIP, the
+correlation uses the <strong>max tract score</strong> (worst tract in the ZIP) and the
+<strong>land-weighted mean tract score</strong> (average risk weighted by how much of the ZIP
+each tract covers).</p>
+<h2>Correlation with observed EBLL rate</h2>
+<table>
+<thead>
+<tr>
+<th>LeadSentry metric</th>
+<th>Pearson r</th>
+<th>Spearman ρ</th>
+<th>ZIPs with data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Max tract score</td>
+<td>0.33</td>
+<td>0.32</td>
+<td>26</td>
+</tr>
+<tr>
+<td>Land-weighted mean score</td>
+<td>0.44</td>
+<td>0.55</td>
+<td>26</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Max tract score:</strong> weak positive correlation (Pearson r = 0.33). More ZIPs or a refined model would improve this relationship.</li>
+<li><strong>Land-weighted mean score:</strong> moderate positive correlation (Pearson r = 0.44). More ZIPs or a refined model would improve this relationship.</li>
+</ul>
+<h2>By ZIP</h2>
+<table>
+<thead>
+<tr>
+<th>ZIP</th>
+<th>Max score</th>
+<th>Mean score</th>
+<th>Priority land</th>
+<th>NYSDOH rate / 1,000</th>
+<th>EBLLs</th>
+<th>Tests</th>
+<th>Year</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14218</td>
+<td>77</td>
+<td>65</td>
+<td>88%</td>
+<td>24.0</td>
+<td>6</td>
+<td>246</td>
+<td>2021</td>
+</tr>
+<tr>
+<td>14221</td>
+<td>76</td>
+<td>43</td>
+<td>5%</td>
+<td>0.0</td>
+<td>0</td>
+<td>574</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14206</td>
+<td>75</td>
+<td>72</td>
+<td>100%</td>
+<td>26.0</td>
+<td>8</td>
+<td>303</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14210</td>
+<td>75</td>
+<td>67</td>
+<td>86%</td>
+<td>33.0</td>
+<td>6</td>
+<td>183</td>
+<td>2022</td>
+</tr>
+<tr>
+<td>14212</td>
+<td>75</td>
+<td>70</td>
+<td>100%</td>
+<td>89.0</td>
+<td>27</td>
+<td>303</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14220</td>
+<td>75</td>
+<td>69</td>
+<td>92%</td>
+<td>27.0</td>
+<td>6</td>
+<td>220</td>
+<td>2021</td>
+</tr>
+<tr>
+<td>14211</td>
+<td>74</td>
+<td>67</td>
+<td>100%</td>
+<td>69.0</td>
+<td>40</td>
+<td>580</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14208</td>
+<td>73</td>
+<td>68</td>
+<td>81%</td>
+<td>58.0</td>
+<td>10</td>
+<td>171</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14214</td>
+<td>73</td>
+<td>67</td>
+<td>91%</td>
+<td>25.0</td>
+<td>6</td>
+<td>241</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14215</td>
+<td>73</td>
+<td>69</td>
+<td>96%</td>
+<td>23.0</td>
+<td>16</td>
+<td>700</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14213</td>
+<td>72</td>
+<td>66</td>
+<td>70%</td>
+<td>87.0</td>
+<td>6</td>
+<td>69</td>
+<td>2018</td>
+</tr>
+<tr>
+<td>14201</td>
+<td>71</td>
+<td>65</td>
+<td>75%</td>
+<td>0.0</td>
+<td>0</td>
+<td>47</td>
+<td>2023</td>
+</tr>
+<tr>
+<td>14209</td>
+<td>70</td>
+<td>65</td>
+<td>89%</td>
+<td>76.0</td>
+<td>6</td>
+<td>79</td>
+<td>2016</td>
+</tr>
+<tr>
+<td>14216</td>
+<td>70</td>
+<td>66</td>
+<td>99%</td>
+<td>42.0</td>
+<td>9</td>
+<td>212</td>
+<td>2013</td>
+</tr>
+<tr>
+<td>14222</td>
+<td>70</td>
+<td>60</td>
+<td>86%</td>
+<td>0.0</td>
+<td>0</td>
+<td>82</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14227</td>
+<td>70</td>
+<td>58</td>
+<td>32%</td>
+<td>0.0</td>
+<td>0</td>
+<td>232</td>
+<td>2023</td>
+</tr>
+<tr>
+<td>14203</td>
+<td>69</td>
+<td>67</td>
+<td>95%</td>
+<td>0.0</td>
+<td>0</td>
+<td>24</td>
+<td>2023</td>
+</tr>
+<tr>
+<td>14207</td>
+<td>69</td>
+<td>65</td>
+<td>100%</td>
+<td>28.0</td>
+<td>10</td>
+<td>361</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14225</td>
+<td>69</td>
+<td>63</td>
+<td>89%</td>
+<td>14.0</td>
+<td>6</td>
+<td>441</td>
+<td>2022</td>
+</tr>
+<tr>
+<td>14224</td>
+<td>68</td>
+<td>49</td>
+<td>12%</td>
+<td>0.0</td>
+<td>0</td>
+<td>400</td>
+<td>2019</td>
+</tr>
+<tr>
+<td>14202</td>
+<td>67</td>
+<td>60</td>
+<td>54%</td>
+<td>0.0</td>
+<td>0</td>
+<td>16</td>
+<td>2024</td>
+</tr>
+<tr>
+<td>14204</td>
+<td>67</td>
+<td>57</td>
+<td>29%</td>
+<td>57.0</td>
+<td>7</td>
+<td>123</td>
+<td>2022</td>
+</tr>
+<tr>
+<td>14217</td>
+<td>67</td>
+<td>63</td>
+<td>83%</td>
+<td>23.0</td>
+<td>6</td>
+<td>260</td>
+<td>2010</td>
+</tr>
+<tr>
+<td>14226</td>
+<td>67</td>
+<td>60</td>
+<td>41%</td>
+<td>43.0</td>
+<td>6</td>
+<td>141</td>
+<td>2012</td>
+</tr>
+<tr>
+<td>14223</td>
+<td>63</td>
+<td>61</td>
+<td>81%</td>
+<td>0.0</td>
+<td>0</td>
+<td>250</td>
+<td>2018</td>
+</tr>
+<tr>
+<td>14228</td>
+<td>56</td>
+<td>35</td>
+<td>0%</td>
+<td>0.0</td>
+<td>0</td>
+<td>307</td>
+<td>2024</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <a href="https://health.data.ny.gov/Health/Childhood-Blood-Lead-Testing-and-Elevated-Incidenc/d54z-enu8">NYSDOH Childhood Blood Lead Testing and Elevated Incidence by Zip Code</a>.</p>
+  </main>
+</body>
+</html>
