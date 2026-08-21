@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LeadSentry on AWS: an explainable childhood lead-exposure risk triage agent with a live Lambda-powered demo.">
+  <meta name="theme-color" content="#0d2445">
+  <title>LeadSentry — AWS Weekend Creative Agent Challenge</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <style>
+    @font-face {
+      font-family: "Syncopate";
+      src: url("fonts/Syncopate-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: light;
+      --navy-950: #071522;
+      --navy-900: #0d2445;
+      --navy-800: #14365f;
+      --navy-700: #1d4974;
+      --blue: #4285f4;
+      --blue-soft: #dceaff;
+      --teal: #0d8f8f;
+      --orange: #ff9900;
+      --orange-soft: #fff1d6;
+      --ink: #132f4c;
+      --muted: #526a82;
+      --paper: #f4f7fb;
+      --surface: #fbfdff;
+      --rule: #cbd7e4;
+      --success: #16734a;
+      --danger: #a62935;
+      --radius: 0.65rem;
+      --shadow: 0 1.5rem 4rem rgba(7, 21, 34, 0.12);
+      --display: "Syncopate", "Trebuchet MS", sans-serif;
+      --body: "Aptos", "Segoe UI Variable", "Trebuchet MS", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--body);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    :where(a, button, input):focus-visible {
+      outline: 0.2rem solid var(--orange);
+      outline-offset: 0.2rem;
+    }
+
+    .skip-link {
+      position: fixed;
+      inset: 0.75rem auto auto 0.75rem;
+      z-index: 20;
+      padding: 0.65rem 1rem;
+      background: var(--surface);
+      color: var(--navy-950);
+      border-radius: 0.35rem;
+      transform: translateY(-160%);
+      transition: transform 180ms ease-out;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .site-header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 10;
+      border-bottom: 1px solid rgba(220, 234, 255, 0.18);
+    }
+
+    .nav {
+      width: min(74rem, calc(100% - 2rem));
+      min-height: 4.5rem;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      color: #f5f9ff;
+      text-decoration: none;
+    }
+
+    .brand img {
+      width: 2.25rem;
+      height: 2.25rem;
+      object-fit: contain;
+    }
+
+    .brand-name {
+      font-family: var(--display);
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+    }
+
+    .brand-name span {
+      color: #72a6fb;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.75rem, 2vw, 1.5rem);
+    }
+
+    .nav-links a {
+      color: #dceaff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: #f8fbff;
+    }
+
+    .aws-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid rgba(255, 153, 0, 0.55);
+      border-radius: 999px;
+      color: #ffd999;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .aws-mark::before {
+      content: "";
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 0 0.2rem rgba(255, 153, 0, 0.16);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(8rem, 15vw, 11rem) 1rem clamp(5rem, 10vw, 8rem);
+      background: var(--navy-950);
+      color: #f5f9ff;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(66, 133, 244, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(66, 133, 244, 0.055) 1px, transparent 1px);
+      background-size: 3.5rem 3.5rem;
+      mask-image: linear-gradient(to bottom, black 20%, transparent 88%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 38rem;
+      height: 38rem;
+      right: -17rem;
+      top: 5rem;
+      border: 1px solid rgba(66, 133, 244, 0.23);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 6rem rgba(66, 133, 244, 0.035),
+        0 0 0 12rem rgba(13, 143, 143, 0.025);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      width: min(74rem, 100%);
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+      gap: clamp(3rem, 8vw, 7rem);
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0 0 1.2rem;
+      color: #ffd999;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 2rem;
+      height: 0.15rem;
+      background: var(--orange);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin-bottom: 1.4rem;
+      font-family: var(--display);
+      font-size: clamp(2.7rem, 7vw, 5.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    h1 span {
+      color: #72a6fb;
+    }
+
+    .hero-copy {
+      max-width: 42rem;
+      margin-bottom: 2rem;
+      color: #c9d9ea;
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 3rem;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.15rem;
+      border: 1px solid transparent;
+      border-radius: 0.35rem;
+      background: var(--blue);
+      color: #f8fbff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out;
+    }
+
+    .button:hover {
+      transform: translateY(-0.12rem);
+      background: #2f70db;
+    }
+
+    .button.secondary {
+      border-color: rgba(220, 234, 255, 0.38);
+      background: transparent;
+      color: #edf5ff;
+    }
+
+    .button.secondary:hover {
+      border-color: #edf5ff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .deployment-proof {
+      position: relative;
+      border-top: 0.22rem solid var(--orange);
+      background: #0b1d31;
+      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.28);
+    }
+
+    .proof-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.15rem;
+      border-bottom: 1px solid rgba(220, 234, 255, 0.12);
+      color: #b9cce0;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #7fe0b1;
+    }
+
+    .status-dot::before {
+      content: "";
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: #45c486;
+    }
+
+    .proof-body {
+      padding: 1.25rem 1.15rem 1.4rem;
+    }
+
+    .proof-label {
+      margin-bottom: 0.4rem;
+      color: #7890aa;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .endpoint {
+      display: block;
+      overflow-wrap: anywhere;
+      color: #dceaff;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+    }
+
+    .proof-rule {
+      height: 1px;
+      margin: 1.15rem 0;
+      border: 0;
+      background: rgba(220, 234, 255, 0.12);
+    }
+
+    .proof-facts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .proof-fact strong,
+    .proof-fact span {
+      display: block;
+    }
+
+    .proof-fact strong {
+      color: #f3f7fc;
+      font-size: 0.9rem;
+    }
+
+    .proof-fact span {
+      color: #7890aa;
+      font-size: 0.7rem;
+    }
+
+    .section {
+      padding: clamp(4rem, 8vw, 7rem) 1rem;
+    }
+
+    .section-inner {
+      width: min(74rem, 100%);
+      margin-inline: auto;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 0.7fr) minmax(18rem, 1.3fr);
+      gap: clamp(2rem, 7vw, 6rem);
+      align-items: start;
+      margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+    }
+
+    .kicker {
+      margin-bottom: 0.75rem;
+      color: var(--teal);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      max-width: 18ch;
+      margin-bottom: 1rem;
+      font-family: var(--display);
+      font-size: clamp(1.65rem, 3.6vw, 3rem);
+      line-height: 1.15;
+      letter-spacing: -0.035em;
+    }
+
+    .section-heading > p {
+      max-width: 52rem;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.8vw, 1.15rem);
+    }
+
+    .problem-strip {
+      display: grid;
+      grid-template-columns: 1.3fr repeat(3, 0.65fr);
+      border-block: 1px solid var(--rule);
+    }
+
+    .problem-copy,
+    .metric {
+      padding: clamp(1.4rem, 3vw, 2rem);
+    }
+
+    .problem-copy {
+      padding-left: 0;
+    }
+
+    .problem-copy p {
+      max-width: 44rem;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .metric {
+      border-left: 1px solid var(--rule);
+    }
+
+    .metric strong,
+    .metric span {
+      display: block;
+    }
+
+    .metric strong {
+      margin-bottom: 0.35rem;
+      color: var(--navy-900);
+      font-family: var(--display);
+      font-size: clamp(1.5rem, 3vw, 2.35rem);
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .architecture {
+      background: #eaf0f7;
+    }
+
+    .architecture-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: #afc0d2;
+      border: 1px solid #afc0d2;
+    }
+
+    .architecture-node {
+      position: relative;
+      min-height: 11rem;
+      padding: 1.25rem;
+      background: var(--surface);
+    }
+
+    .architecture-node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      right: -0.75rem;
+      display: grid;
+      width: 1.5rem;
+      height: 1.5rem;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--orange);
+      color: var(--navy-950);
+      font-weight: 900;
+      transform: translateY(-50%);
+    }
+
+    .node-index {
+      display: block;
+      margin-bottom: 2.2rem;
+      color: var(--teal);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+    }
+
+    .architecture-node strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--navy-900);
+      font-size: 1rem;
+    }
+
+    .architecture-node p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .rubric {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      margin-top: 3rem;
+      border-top: 0.25rem solid var(--navy-900);
+    }
+
+    .rubric-item {
+      padding: 1.5rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .rubric-item + .rubric-item {
+      border-left: 1px solid var(--rule);
+    }
+
+    .rubric-item strong {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--navy-900);
+    }
+
+    .rubric-item strong span {
+      color: var(--blue);
+      font-family: var(--display);
+      font-size: 1.25rem;
+    }
+
+    .rubric-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .demo {
+      background: var(--navy-900);
+      color: #f5f9ff;
+    }
+
+    .demo .kicker {
+      color: #ffd999;
+    }
+
+    .demo h2 {
+      max-width: 20ch;
+    }
+
+    .demo .section-heading > p {
+      color: #c3d3e5;
+    }
+
+    .demo-shell {
+      container-type: inline-size;
+      display: grid;
+      grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.28fr);
+      background: #f7faff;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .demo-panel {
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+    }
+
+    .demo-panel:first-child {
+      border-right: 1px solid var(--rule);
+    }
+
+    .panel-label {
+      margin-bottom: 1.5rem;
+      color: var(--teal);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    legend {
+      margin-bottom: 0.45rem;
+      color: var(--navy-900);
+      font-weight: 850;
+    }
+
+    .form-hint {
+      margin-bottom: 1.25rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .address-options {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .address-option {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.9rem;
+      border: 1px solid #aebed0;
+      border-radius: 0.4rem;
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 160ms ease-out, background-color 160ms ease-out, transform 160ms ease-out;
+    }
+
+    .address-option:hover {
+      border-color: var(--blue);
+      transform: translateX(0.15rem);
+    }
+
+    .address-option:has(input:checked) {
+      border-color: var(--blue);
+      background: #eaf2ff;
+      box-shadow: inset 0 0 0 1px var(--blue);
+    }
+
+    .address-option input {
+      width: 1rem;
+      height: 1rem;
+      margin-top: 0.2rem;
+      accent-color: var(--blue);
+    }
+
+    .address-option strong,
+    .address-option span {
+      display: block;
+    }
+
+    .address-option strong {
+      color: var(--navy-900);
+      font-size: 0.87rem;
+    }
+
+    .address-option span {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .submit-button {
+      width: 100%;
+      margin-top: 1.25rem;
+      border: 0;
+      background: var(--blue);
+    }
+
+    .submit-button:disabled {
+      cursor: wait;
+      opacity: 0.68;
+      transform: none;
+    }
+
+    .demo-note {
+      margin: 1rem 0 0;
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .result-panel {
+      min-height: 32rem;
+      background: #edf3fa;
+    }
+
+    .result-empty {
+      min-height: 25rem;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .result-empty strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--navy-900);
+      font-size: 1rem;
+    }
+
+    .result-empty p {
+      max-width: 29rem;
+      margin: 0;
+      font-size: 0.88rem;
+    }
+
+    .result-content[hidden],
+    .result-error[hidden] {
+      display: none;
+    }
+
+    .result-summary {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: clamp(1.25rem, 4vw, 2.5rem);
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .score-dial {
+      --score: 0;
+      display: grid;
+      width: 8rem;
+      height: 8rem;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--blue) calc(var(--score) * 1%), #d2deea 0);
+      position: relative;
+    }
+
+    .score-dial::before {
+      content: "";
+      position: absolute;
+      inset: 0.6rem;
+      border-radius: inherit;
+      background: #f8fbff;
+    }
+
+    .score-value {
+      position: relative;
+      z-index: 1;
+      color: var(--navy-900);
+      font-family: var(--display);
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .score-value small {
+      display: block;
+      margin-top: 0.25rem;
+      color: var(--muted);
+      font-family: var(--body);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .result-band {
+      margin-bottom: 0.45rem;
+      color: var(--teal);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .result-title {
+      margin-bottom: 0.45rem;
+      color: var(--navy-900);
+      font-family: var(--display);
+      font-size: clamp(1.15rem, 3vw, 1.65rem);
+      line-height: 1.2;
+    }
+
+    .result-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .components {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .component-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.35rem;
+      color: var(--navy-900);
+      font-size: 0.8rem;
+      font-weight: 850;
+    }
+
+    .component-track {
+      height: 0.42rem;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #cfdbe7;
+    }
+
+    .component-fill {
+      width: var(--fill);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal);
+      transform-origin: left;
+      animation: fill-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .component-reason {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .result-error {
+      padding: 1rem;
+      border: 1px solid #d98d95;
+      background: #fff0f1;
+      color: var(--danger);
+      font-size: 0.9rem;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: clamp(2rem, 7vw, 6rem);
+      align-items: center;
+    }
+
+    .evidence-copy p {
+      max-width: 38rem;
+      color: var(--muted);
+    }
+
+    .evidence-copy strong {
+      color: var(--navy-900);
+    }
+
+    .validation-figure {
+      margin: 0;
+      padding: 1rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+      box-shadow: 0 1rem 3rem rgba(7, 21, 34, 0.08);
+    }
+
+    .validation-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .validation-figure figcaption {
+      padding: 0.85rem 0.35rem 0.2rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .evidence-points {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .evidence-point {
+      padding-top: 0.85rem;
+      border-top: 0.2rem solid var(--orange);
+    }
+
+    .evidence-point strong,
+    .evidence-point span {
+      display: block;
+    }
+
+    .evidence-point strong {
+      color: var(--navy-900);
+      font-family: var(--display);
+      font-size: 1.25rem;
+    }
+
+    .evidence-point span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .closing {
+      padding: clamp(4rem, 8vw, 6.5rem) 1rem;
+      background: var(--navy-950);
+      color: #f5f9ff;
+    }
+
+    .closing-inner {
+      width: min(74rem, 100%);
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: clamp(2rem, 8vw, 7rem);
+      align-items: end;
+    }
+
+    .closing h2 {
+      max-width: 19ch;
+      margin-bottom: 1.25rem;
+    }
+
+    .closing p {
+      max-width: 46rem;
+      color: #b9cce0;
+    }
+
+    .closing-links {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .closing-links a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid rgba(220, 234, 255, 0.2);
+      color: #edf5ff;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .closing-links a::after {
+      content: "↗";
+      color: var(--orange);
+    }
+
+    .closing-links a:hover {
+      border-bottom-color: var(--orange);
+    }
+
+    footer {
+      padding: 1.3rem 1rem;
+      border-top: 1px solid rgba(220, 234, 255, 0.12);
+      background: var(--navy-950);
+      color: #7890aa;
+      font-size: 0.76rem;
+      text-align: center;
+    }
+
+    footer a {
+      color: #dceaff;
+    }
+
+    @keyframes fill-in {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @container (max-width: 47rem) {
+      .demo-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-panel:first-child {
+        border-right: 0;
+        border-bottom: 1px solid var(--rule);
+      }
+    }
+
+    @media (max-width: 47rem) {
+      .demo-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-panel:first-child {
+        border-right: 0;
+        border-bottom: 1px solid var(--rule);
+      }
+    }
+
+    @media (max-width: 58rem) {
+      .hero-grid,
+      .section-heading,
+      .evidence-grid,
+      .closing-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .deployment-proof {
+        max-width: 36rem;
+      }
+
+      .problem-strip {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .problem-copy {
+        grid-column: 1 / -1;
+        padding-left: 0;
+      }
+
+      .metric:first-of-type {
+        border-left: 0;
+      }
+
+      .architecture-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .architecture-node {
+        min-height: auto;
+      }
+
+      .architecture-node:not(:last-child)::after {
+        content: "↓";
+        top: auto;
+        right: 50%;
+        bottom: -0.75rem;
+        transform: translateX(50%);
+      }
+    }
+
+    @media (max-width: 40rem) {
+      .nav-links > a:not(.aws-mark) {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 7rem;
+      }
+
+      h1 {
+        font-size: clamp(2.35rem, 14vw, 3.7rem);
+      }
+
+      .proof-facts,
+      .rubric,
+      .evidence-points {
+        grid-template-columns: 1fr;
+      }
+
+      .problem-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .metric,
+      .metric:first-of-type {
+        border-left: 0;
+        border-top: 1px solid var(--rule);
+        padding-left: 0;
+      }
+
+      .rubric-item + .rubric-item {
+        border-left: 0;
+      }
+
+      .result-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .score-dial {
+        width: 6.8rem;
+        height: 6.8rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="LeadSentry home">
+        <img src="assets/logo-icon.png" alt="" width="36" height="36">
+        <span class="brand-name">Lead<span>Sentry</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#architecture">Architecture</a>
+        <a href="#live-demo">Live demo</a>
+        <span class="aws-mark">Deployed on AWS</span>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Weekend Creative Agent Challenge</p>
+          <h1>Know which door to <span>knock on first.</span></h1>
+          <p class="hero-copy">
+            LeadSentry turns an address into an explainable childhood lead-exposure risk assessment, helping public-health teams direct testing and outreach where limited resources can matter most.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#live-demo">Run a live assessment</a>
+            <a class="button secondary" href="https://github.com/QAInsights/leadsentry" target="_blank" rel="noopener">Inspect the source</a>
+          </div>
+        </div>
+
+        <aside class="deployment-proof" aria-label="AWS deployment details">
+          <div class="proof-head">
+            <span>Deployment proof</span>
+            <span class="status-dot">Live</span>
+          </div>
+          <div class="proof-body">
+            <p class="proof-label">AWS Lambda Function URL</p>
+            <code class="endpoint">https://re2lvepriq3f6ewmr7mpe6fagi0tzdya.lambda-url.us-east-1.on.aws/</code>
+            <hr class="proof-rule">
+            <div class="proof-facts">
+              <div class="proof-fact"><strong>Node.js 22</strong><span>Lambda runtime</span></div>
+              <div class="proof-fact"><strong>us-east-1</strong><span>AWS Region</span></div>
+              <div class="proof-fact"><strong>DynamoDB</strong><span>Assessment store</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="problem-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">The mission</p>
+            <h2 id="problem-title">Prevention is an allocation problem.</h2>
+          </div>
+          <p>
+            Health departments can test for lead exposure, distribute filters, and conduct outreach. The hard part is deciding which addresses to prioritize before harm is detected. LeadSentry combines environmental evidence, housing-age context, and explicit confidence rules into one traceable decision.
+          </p>
+        </div>
+
+        <div class="problem-strip">
+          <div class="problem-copy">
+            <p><strong>Not a diagnosis.</strong> LeadSentry is a transparent triage assistant. It ranks where preventive attention may be most valuable while preserving the sources, missing inputs, and location-quality caveats behind every result.</p>
+          </div>
+          <div class="metric"><strong>0–100</strong><span>Deterministic risk score</span></div>
+          <div class="metric"><strong>26</strong><span>Erie County ZIPs validated</span></div>
+          <div class="metric"><strong>0.55</strong><span>Land-weighted mean Spearman correlation</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section architecture" id="architecture" aria-labelledby="architecture-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">AWS architecture</p>
+            <h2 id="architecture-title">One request. Five accountable steps.</h2>
+          </div>
+          <p>
+            The model does not invent the score. Deterministic tools own calculation; the agent owns interpretation. AWS supplies a repeatable, serverless path from request to persisted assessment.
+          </p>
+        </div>
+
+        <div class="architecture-flow" aria-label="Request architecture flow">
+          <article class="architecture-node">
+            <span class="node-index">01 / REQUEST</span>
+            <strong>Client</strong>
+            <p>Sends an illustrative address as JSON over HTTPS.</p>
+          </article>
+          <article class="architecture-node">
+            <span class="node-index">02 / ROUTE</span>
+            <strong>Function URL / API Gateway</strong>
+            <p>Expose public HTTPS entry points backed by the same Lambda.</p>
+          </article>
+          <article class="architecture-node">
+            <span class="node-index">03 / EXECUTE</span>
+            <strong>AWS Lambda</strong>
+            <p>Validates input and runs the existing LeadSentry workflow.</p>
+          </article>
+          <article class="architecture-node">
+            <span class="node-index">04 / SCORE</span>
+            <strong>Risk engine</strong>
+            <p>Combines housing age, contamination, and water-service evidence.</p>
+          </article>
+          <article class="architecture-node">
+            <span class="node-index">05 / RECORD</span>
+            <strong>DynamoDB</strong>
+            <p>Stores the full assessment, evidence, action, and timestamp.</p>
+          </article>
+        </div>
+
+        <div class="rubric" aria-label="LeadSentry scoring rubric">
+          <article class="rubric-item">
+            <strong>Pre-1980 housing <span>50</span></strong>
+            <p>US Census ACS B25034 joined through the Mireye tract GEOID.</p>
+          </article>
+          <article class="rubric-item">
+            <strong>Legacy contamination <span>30</span></strong>
+            <p>EPA Superfund, brownfield, RCRA, and leaking-tank proximity signals.</p>
+          </article>
+          <article class="rubric-item">
+            <strong>Water service gap <span>20</span></strong>
+            <p>Community water coverage and domestic-well density evidence.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section demo" id="live-demo" aria-labelledby="demo-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">Live on AWS</p>
+            <h2 id="demo-title">Exercise the deployed scoring workflow.</h2>
+          </div>
+          <p>
+            Choose a documented fixture and invoke the public Lambda Function URL. The response is calculated live and persisted to DynamoDB. All fixture values are clearly labeled as illustrative.
+          </p>
+        </div>
+
+        <div class="demo-shell">
+          <div class="demo-panel">
+            <p class="panel-label">Request</p>
+            <form id="assessment-form" action="https://re2lvepriq3f6ewmr7mpe6fagi0tzdya.lambda-url.us-east-1.on.aws/" method="post">
+              <fieldset>
+                <legend>Select a demo address</legend>
+                <p class="form-hint" id="address-hint">Each option exercises a different risk profile in the illustrative dataset.</p>
+                <div class="address-options">
+                  <label class="address-option">
+                    <input type="radio" name="address" value="436 Massachusetts Ave, Buffalo, NY 14213" checked aria-describedby="address-hint">
+                    <span><strong>West Side, Buffalo</strong><span>436 Massachusetts Ave · older housing and nearby legacy sites</span></span>
+                  </label>
+                  <label class="address-option">
+                    <input type="radio" name="address" value="2214 Genesee St, Buffalo, NY 14211" aria-describedby="address-hint">
+                    <span><strong>East Side, Buffalo</strong><span>2214 Genesee St · dense legacy-contamination signals</span></span>
+                  </label>
+                  <label class="address-option">
+                    <input type="radio" name="address" value="35 Maple View Ln, Amherst, NY 14221" aria-describedby="address-hint">
+                    <span><strong>Amherst suburb</strong><span>35 Maple View Ln · newer housing and lower-risk context</span></span>
+                  </label>
+                </div>
+              </fieldset>
+              <button class="button submit-button" id="submit-button" type="submit">Score this address</button>
+              <p class="demo-note">Public demo only. These environmental and housing values are invented fixtures shaped like the production data contract.</p>
+            </form>
+          </div>
+
+          <div class="demo-panel result-panel" id="result-panel" aria-busy="false">
+            <p class="panel-label">Assessment</p>
+            <div class="result-empty" id="result-empty">
+              <div>
+                <strong>Ready for a live request</strong>
+                <p>Select a fixture and run the workflow to see its score, confidence, action, and cited components.</p>
+              </div>
+            </div>
+            <div class="result-error" id="result-error" role="alert" hidden></div>
+            <div class="result-content" id="result-content" aria-live="polite" hidden>
+              <div class="result-summary">
+                <div class="score-dial" id="score-dial">
+                  <div class="score-value"><span id="score-value">0</span><small>of 100</small></div>
+                </div>
+                <div>
+                  <p class="result-band" id="result-band">Band</p>
+                  <h3 class="result-title" id="result-action">Action</h3>
+                  <p class="result-meta" id="result-meta"></p>
+                </div>
+              </div>
+              <div class="components" id="components"></div>
+            </div>
+          </div>
+        </div>
+        <noscript><p>This live assessment requires JavaScript. The endpoint and source remain available in the links below.</p></noscript>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="evidence-title">
+      <div class="section-inner evidence-grid">
+        <div class="evidence-copy">
+          <p class="kicker">Ground-truth check</p>
+          <h2 id="evidence-title">A ranking should meet reality.</h2>
+          <p>
+            Across <strong>26 Erie County ZIP codes</strong>, LeadSentry's land-weighted mean score was compared with public childhood blood-lead outcomes from the New York State Department of Health.
+          </p>
+          <p>
+            Correlation does not turn a triage score into a clinical diagnosis. It does provide encouraging evidence that the ranking captures a useful signal for deciding where deeper investigation may be warranted.
+          </p>
+          <div class="evidence-points">
+            <div class="evidence-point"><strong>ρ 0.55</strong><span>Spearman rank correlation</span></div>
+            <div class="evidence-point"><strong>r 0.44</strong><span>Pearson linear correlation</span></div>
+          </div>
+        </div>
+        <figure class="validation-figure">
+          <img src="assets/validation-scatter.png" alt="Scatter plot comparing LeadSentry ZIP risk scores with observed elevated blood-lead rates in Erie County" width="1600" height="1072" loading="lazy" decoding="async">
+          <figcaption>Higher LeadSentry risk scores generally align with higher observed elevated-BLL rates per 1,000 children tested.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="closing" aria-labelledby="closing-title">
+      <div class="closing-inner">
+        <div>
+          <p class="eyebrow">Built for accountable action</p>
+          <h2 id="closing-title">An agent should show its work.</h2>
+          <p>
+            LeadSentry preserves source provenance, exposes missing inputs, compares agent decisions with a rule baseline, and keeps its deterministic scorer testable. The result is not a black-box prediction; it is an auditable recommendation for where preventive attention may matter.
+          </p>
+        </div>
+        <div class="closing-links">
+          <a href="https://github.com/QAInsights/leadsentry" target="_blank" rel="noopener">GitHub repository</a>
+          <a href="report.html" target="_blank" rel="noopener">Sample assessment report</a>
+          <a href="validation-report.html" target="_blank" rel="noopener">Validation report</a>
+          <a href="https://github.com/QAInsights/leadsentry#aws-lambda-and-sam" target="_blank" rel="noopener">AWS deployment guide</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Built by <a href="https://qainsights.com" target="_blank" rel="noopener">NaveenKumar Namachivayam / QAInsights</a> for the AWS Weekend Creative Agent Challenge. Demo data is illustrative.
+  </footer>
+
+  <script>
+    const endpoint = "https://re2lvepriq3f6ewmr7mpe6fagi0tzdya.lambda-url.us-east-1.on.aws/";
+    const form = document.querySelector("#assessment-form");
+    const button = document.querySelector("#submit-button");
+    const panel = document.querySelector("#result-panel");
+    const empty = document.querySelector("#result-empty");
+    const content = document.querySelector("#result-content");
+    const errorBox = document.querySelector("#result-error");
+    const components = document.querySelector("#components");
+
+    const humanize = (value) => value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+    const requestTimeout = () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      return { signal: controller.signal, cancel: () => clearTimeout(timeoutId) };
+    };
+
+    const addComponent = (component) => {
+      const item = document.createElement("article");
+      const head = document.createElement("div");
+      const name = document.createElement("span");
+      const points = document.createElement("span");
+      const track = document.createElement("div");
+      const fill = document.createElement("div");
+      const reason = document.createElement("p");
+
+      head.className = "component-head";
+      track.className = "component-track";
+      fill.className = "component-fill";
+      reason.className = "component-reason";
+      name.textContent = humanize(component.name);
+      points.textContent = `${component.points} / ${component.maxPoints}`;
+      fill.style.setProperty("--fill", `${Math.min(100, (component.points / component.maxPoints) * 100)}%`);
+      reason.textContent = component.reason || "No risk signal in this component.";
+      track.setAttribute("aria-label", `${name.textContent}: ${points.textContent} points`);
+
+      head.append(name, points);
+      track.append(fill);
+      item.append(head, track, reason);
+      components.append(item);
+    };
+
+    const renderAssessment = (record) => {
+      const assessment = record.assessment;
+      const score = assessment.score;
+      document.querySelector("#score-value").textContent = score.score;
+      document.querySelector("#score-dial").style.setProperty("--score", score.score);
+      document.querySelector("#result-band").textContent = `${humanize(score.band)} risk · ${humanize(assessment.confidence)} confidence`;
+      document.querySelector("#result-action").textContent = humanize(assessment.action);
+      document.querySelector("#result-meta").textContent = `${assessment.resolvedAddress || assessment.address} · Assessment ${record.id.slice(0, 8)}`;
+      components.replaceChildren();
+      score.components.forEach(addComponent);
+      empty.hidden = true;
+      errorBox.hidden = true;
+      content.hidden = false;
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const address = data.get("address");
+      button.disabled = true;
+      button.textContent = "Scoring on AWS…";
+      panel.setAttribute("aria-busy", "true");
+      errorBox.hidden = true;
+      const timeout = requestTimeout();
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address }),
+          signal: timeout.signal,
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || `Request failed with status ${response.status}`);
+        renderAssessment(payload);
+      } catch (error) {
+        empty.hidden = true;
+        content.hidden = true;
+        errorBox.textContent = error.name === "AbortError"
+          ? "The AWS request timed out. Please try again."
+          : `The live assessment could not be completed: ${error.message}`;
+        errorBox.hidden = false;
+      } finally {
+        timeout.cancel();
+        button.disabled = false;
+        button.textContent = "Score this address";
+        panel.setAttribute("aria-busy", "false");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -15,6 +15,10 @@
     "test:watch": "vitest",
     "start": "tsx src/index.ts",
     "demo": "tsx src/index.ts --demo",
+    "dynamodb:init": "tsx scripts/init-dynamodb.ts",
+    "sam:build": "sam build",
+    "sam:local": "sam local start-api --env-vars env.local.json",
+    "sam:sync": "sam sync --stack-name leadsentry --watch",
     "validate:erie": "tsx src/index.ts --validate-zip-list data/erie-zips.json",
     "validate:demo": "tsx src/index.ts --validate-zip-list data/erie-zips-demo.json --demo"
   },
@@ -25,14 +29,18 @@
     "@ai-sdk/mcp": "^2.0.27",
     "@ai-sdk/openai": "^4.0.33",
     "@ai-sdk/openai-compatible": "^3.0.25",
+    "@aws-sdk/client-dynamodb": "^3.1109.0",
+    "@aws-sdk/lib-dynamodb": "^3.1109.0",
     "ai": "^7.0.55",
     "dotenv": "^17.4.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.162",
     "@types/node": "^24.0.0",
+    "esbuild": "0.28.2",
     "tsx": "^4.23.9",
     "typescript": "^7.0.2",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.10"
   }
 }

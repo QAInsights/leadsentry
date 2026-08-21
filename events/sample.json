@@ -1,0 +1,29 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /score",
+  "rawPath": "/score",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "accountId": "anonymous",
+    "apiId": "local",
+    "domainName": "localhost",
+    "domainPrefix": "localhost",
+    "http": {
+      "method": "POST",
+      "path": "/score",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "sam-local"
+    },
+    "requestId": "local-request",
+    "routeKey": "POST /score",
+    "stage": "$default",
+    "time": "20/Aug/2026:12:00:00 +0000",
+    "timeEpoch": 1787227200000
+  },
+  "body": "{\"address\":\"436 Massachusetts Ave, Buffalo, NY 14213\"}",
+  "isBase64Encoded": false
+}

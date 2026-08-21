@@ -7,7 +7,8 @@
 <p align="center"><em>Know which door to knock on first.</em></p>
 
 <p align="center">
-  <a href="https://qainsights.github.io/leadsentry/">View the one-pager</a>
+  <a href="https://qainsights.github.io/leadsentry/">View the one-pager</a> ·
+  <a href="https://qainsights.github.io/leadsentry/aws.html">Try the live AWS demo</a>
 </p>
 
 Childhood lead-exposure risk triage agent for the Mireye Build Challenge.
@@ -48,6 +49,44 @@ Tokenless demo against clearly-labeled illustrative fixtures:
 ```bash
 npm run demo
 ```
+
+## AWS Lambda and SAM
+
+The SAM application exposes `POST /score`, runs the existing deterministic LeadSentry scoring pipeline, and stores each assessment in DynamoDB. The deployed Function URL defaults to demo mode so it can be evaluated without API credentials.
+
+Start DynamoDB Local, create its table, build the Lambda, and start the local API:
+
+```bash
+docker run --rm -d --name leadsentry-dynamodb -p 8000:8000 amazon/dynamodb-local
+npm run dynamodb:init
+npm run sam:build
+npm run sam:local
+```
+
+In another terminal, score one of the illustrative demo addresses:
+
+```bash
+curl -X POST http://127.0.0.1:3000/score \
+  -H "Content-Type: application/json" \
+  -d '{"address":"436 Massachusetts Ave, Buffalo, NY 14213"}'
+```
+
+Invoke the Lambda event directly when the HTTP layer is not needed:
+
+```bash
+sam local invoke LeadSentryFunction -e events/sample.json --env-vars env.local.json
+```
+
+Deploy the public Function URL and DynamoDB table for the challenge:
+
+```bash
+npm run sam:build
+sam deploy --guided
+```
+
+The deployment outputs `FunctionUrl`, `HttpApiUrl`, and `TableName`. `FunctionUrl` is the public endpoint to link from the Builder Center article. `AuthType: NONE` is intentional for the public demo; remove the stack after judging or add authentication before using it with non-demo data.
+
+On Windows and macOS, `host.docker.internal` lets SAM's Lambda container reach DynamoDB Local. On Linux, replace that endpoint in `env.local.json` with the Docker host address available to the SAM container.
 
 ## ZIP code mode
 

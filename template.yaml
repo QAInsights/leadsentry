@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: LeadSentry address risk scoring API
+
+Parameters:
+  DemoMode:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 512
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+
+Resources:
+  LeadSentryApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+        AllowMethods:
+          - POST
+
+  LeadSentryFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        OutExtension:
+          - .js=.cjs
+        Target: es2022
+        EntryPoints:
+          - handler.ts
+    Properties:
+      Handler: handler.handler
+      CodeUri: ./
+      ReservedConcurrentExecutions: 5
+      Events:
+        Score:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref LeadSentryApi
+            Method: POST
+            Path: /score
+            PayloadFormatVersion: '2.0'
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - '*'
+          AllowHeaders:
+            - Content-Type
+          AllowMethods:
+            - POST
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref LeadSentryTable
+          DYNAMODB_ENDPOINT: ''
+          DEMO_MODE: !Ref DemoMode
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LeadSentryTable
+
+  LeadSentryTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+
+Outputs:
+  FunctionUrl:
+    Description: Public LeadSentry scoring endpoint
+    Value: !GetAtt LeadSentryFunctionUrl.FunctionUrl
+  HttpApiUrl:
+    Description: API Gateway scoring endpoint
+    Value: !Sub 'https://${LeadSentryApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/score'
+  TableName:
+    Description: DynamoDB assessment table
+    Value: !Ref LeadSentryTable
